@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Squib test desktop page</title>
+<script async src="./../../final/mensfitness.js" type="text/javascript"></script>
+<script type="text/javascript">
+window.top.headertag = window.top.headertag || {};
+window.headertagconfig = {
+    siteId: 174133,
+    timeout: 5000,
+    partners: {
+        'INDX': {
+            targetingType: 'slot',
+            timeout: 5000
+        },
+    }
+};
+window.googletag = window.googletag || { cmd: [] };
+window.googletag.cmd.push(function setupGoogletag() {
+    window.googletag.pubads().collapseEmptyDivs();
+    window.googletag.pubads().enableSingleRequest();
+    window.googletag.enableServices();
+});
+window.googletag.cmd.push(function() {
+    if (typeof window.headertag === 'undefined' || window.headertag.apiReady !== true) {
+        window.headertag = window.googletag;
+    }
+});
+</script>
+<script async src="./../final/squib.js" type="text/javascript"></script>
+<script async src="http://www.googletagservices.com/tag/js/gpt.js"></script>
+<script type="text/javascript">
+(function(window) {
+
+window.squibConfig = {
+    headertag: {
+        enabled: true,
+        reference: function () {
+            return window.headertag;
+        }
+    },
+    viewPortSizes: {
+        getViewPortSize() {
+            return 1024;
+        },
+        'huge'      : 1024,
+        'large'     : 800,
+        'medium'    : 600,
+        'small'     : 420,
+        'mini'      : 200
+    }
+};
+window.squibQueue = window.squibQueue || [];
+
+window.squibQueue.push(function (squib) {
+    var slots = squib.defineSlots([
+        {
+            'gptDivId': 'gpt-div-leaderboard',
+            'adUnitPath': '/62650033/desktop-uk',
+            'viewPortSizes': {
+                'huge'      :   [ [970, 250] ],
+                'large'     :   [ [728, 90] ],
+                'medium'    :   [ [320, 90] ],
+                'small'     :   [ [300, 50] ],
+                'mini'      :   [ [200, 50] ]
+            },
+            'lazyLoad': false,
+            'sticky': false,
+            'targeting': {
+                'type': 'leaderboard',
+                'region': 'Subnav',
+                'pos': 'top'
+            }
+        },
+        {
+            'gptDivId': 'gpt-div-1',
+            'adUnitPath': '/62650033/desktop-uk',
+            'viewPortSizes': {
+                'huge'      :   [ [300, 600] ]
+            },
+            'targeting': {
+                'inView': true,
+                'inContent': false,
+                'region': 'Upper 300',
+                'pos': 'right1'
+            }
+        },
+        {
+            'gptDivId': 'gpt-div-2',
+            'adUnitPath': '/62650033/desktop-uk',
+            'viewPortSizes': {
+                'huge'      :   [ [300, 250] ]
+            },
+            'targeting': {
+                'inView': true,
+                'inContent': false,
+                'region': 'Middle 300',
+                'pos': 'right2'
+            }
+        },
+        {
+            'gptDivId': 'gpt-div-3',
+            'adUnitPath': '/62650033/desktop-uk',
+            'viewPortSizes': {
+                'huge'      :   [ [300, 600] ]
+            },
+            'targeting': {
+                'inView': true,
+                'inContent': false,
+                'region': 'Lower 300',
+                'pos': 'right3'
+            }
+        }
+    ]);
+    slots.forEach((slot) => squib.display(slot.getGPTDivId()));
+});
+}(window));
+</script>
+
+<style>
+#siteHeader, #siteFooter{ display: flex; justify-content: center; padding: 10px; }
+#siteContainer{ display: flex; justify-content: space-between; }
+#rightColumn{ flex-basis: 320px; max-width: 320px; padding: 10px; box-sizing: border-box; }
+#rightColumn > div{ padding-bottom: 10px; }
+</style>
+</head>
+<body class="slideshow">
+<nav>
+    <button id="gptTestRefresh" onclick="refreshAdFrame();" href="#">Refresh the ads</button>
+    <button id="gptCreateLazySlot" style="display: none">Create a lazy load slot</button>
+</nav>
+<header id="siteHeader">
+  <div id="gpt-div-leaderboard" data-tier="1"></div>
+</header>
+<div id="siteContainer">
+  <section id="siteContent">
+    Main site content goes here.
+  </section>
+  <aside id="rightColumn">
+      <div id="gpt-div-1"></div>
+      <div id="gpt-div-2"></div>
+      <div id="gpt-div-3"></div>
+      <div id="gpt-div-4"></div>
+  </aside>
+</div>
+<footer id="siteFooter">
+  <div id="div-gpt-footer-leaderboard"></div>
+</footer>
+<script>
+(function () {
+    window.squibQueue = window.squibQueue || [];
+    window.squibQueue.push(function (squib){
+        var lazyButton = document.getElementById('gptCreateLazySlot');
+        lazyButton.style.display = 'block';
+        lazyButton.onclick = function () {
+        };
+    });
+}());
+</script>
+
+</body>
+</html>
