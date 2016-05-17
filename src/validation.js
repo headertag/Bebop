@@ -87,9 +87,9 @@ function createSlotConfig(jsonSlotConfig) {
         if( typeof jsonSlotConfig.targeting ==='object'){
             var keyStartChar = new RegExp(/^([0-9]).+/);
             var keyPatValChar = new RegExp(/("|'|=|!|\+|#|\*|~|;|\^|\(|\)|<|>|\[|\]|,|&| )/);
-            var valPat = new RegExp(/("|'|=|!|\+|#|\*|~|;|\^|\(|\)|<|>|\[|\]|,|&)/);
+            var valPat = new RegExp(/("|'|=|!|\+|#|\*|~|;|\^|\(|\)|<|>|\[|\]|&)/);
             // !requrements for key, ^(?![0-9]).+("|'|=|!|\+|#|\*|~|;|\^|\(|\)|<|>|\[|\]|,|&| ) && length <20characters 
-            // Value: ("|'|=|!|\+|#|\*|~|;|\^|\(|\)|<|>|\[|\]|,|&) && length < 40 characters 
+            // Value: ("|'|=|!|\+|#|\*|~|;|\^|\(|\)|<|>|\[|\]|&) && length < 40 characters 
             
             
             var sKey = "";
@@ -135,7 +135,22 @@ function createSlotConfig(jsonSlotConfig) {
                 if(type.isArray(jsonSlotConfig.viewPortSizes)){
                     err['viewPortSizes.notInterstitial'] = 'viewPortSizesIsArrayWhileNotInterstitialAd';
                 } else if ( type.isObj(jsonSlotConfig.viewPortSizes)){
-                    
+                    var count = 0;
+                    for(var key in jsonSlotConfig.viewPortSizes){
+                        count++;
+                        if(jsonSlotConfig[key].length ===0){
+                            err['jsonSlotConfig['+key+'+]'] = 'hasLengthZero';
+                        }
+                        for(var i = 0;i<jsonSlotConfig[key];i++){
+                            if(isNaN(jsonSlotConfig[key][i][0])||isNaN(jsonSlotConfig[key][i][0])){
+                                err['jsonSlotConfig['+key+']['+i+']'] = 'isNotTwoNumbers';
+                            }
+                            
+                        }
+                    }
+                    if(count ===0){
+                        err['jsonSlotConfig.viewPortSizes'] = 'hasNoElements';
+                    }
                 } else {
                     err['viewPortSizes'] = 'notObject';
                 }

@@ -10,6 +10,7 @@ function errorCheck(errors) {
 }
 
 function HeadertagConfig(enabled, reference) {
+    //Enabled :bool, default false;  reference: function
     var errors = [], msg = '';
 
     switch (type.getType(enabled)) {
@@ -90,6 +91,7 @@ function GPTConfig(disableInitalLoad, loadTag) {
 }
 
 function ViewPortConfig(vpsConfig) {
+    //vpsConfig is obj,  getViewPortSize is func , viewCatagories is object, viewCatagories[size] is number
     var viewCatagories = {'huge': 0, 'large': 0, 'medium': 0, 'small': 0, 'mini': 0},
         getViewPortSize,
         errors = [],
@@ -108,15 +110,21 @@ function ViewPortConfig(vpsConfig) {
         errors.push(msg);
     }
 
-    util.foreachProp(viewCatagories, function (size) {
-        if (type.isInt(vpsConfig[size])) {
-            viewCatagories[size] = vpsConfig[size];
-        }
-        else {
-            delete viewCatagories[size];
-        }
-    });
-
+    if(typeof viewCatagories !=='undefined'){
+        
+        util.foreachProp(viewCatagories, function (size) {
+            if (type.isInt(vpsConfig[size])) {
+                viewCatagories[size] = vpsConfig[size];
+            }
+            else {
+                delete viewCatagories[size];
+            }
+        });
+    } else {
+        msg = 'viewCatagories undefined';
+        errors.push(msg);
+    }
+    
     if (util.isEmptyObject(viewCatagories)) {
         msg = 'At lease one size option is required';
         errors.push(msg);
