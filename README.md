@@ -189,6 +189,12 @@ To run the tests issue the command: `$ gulp test`
 
 **Please always run the unit tests and fix any errors before committing code**
 
+#### Building the Documentation
+
+`$ npm run doc`
+
+Documentation will be created in the `./docs` directory
+
 ---
 
 ## Things to do:
