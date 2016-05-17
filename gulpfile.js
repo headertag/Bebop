@@ -10,6 +10,12 @@ var batch = require('gulp-batch');
 var metaScript = require('gulp-metascript');
 var del = require('del');
 
+// Web Server
+var webserver = require('gulp-webserver');
+
+// Command Line Args
+var argv = require('yargs').argv;
+
 // Code Quality Dependencies
 var jshint = require('gulp-jshint');
 var jscs = require('gulp-jscs');
@@ -125,6 +131,16 @@ gulp.task('watch', function () {
     watch('./src/**/*.js', batch(function (events, done) {
         gulp.start('build', done);
     }));
+});
+
+gulp.task('serve', function () {
+    var port = argv.port || 8080
+    gulp.src('.')
+        .pipe(webserver({
+            livereload: true,
+            directoryListing: true,
+            port: port
+        }));
 });
 
 gulp.task('default', ['build']);
