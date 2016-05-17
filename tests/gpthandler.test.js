@@ -18,14 +18,14 @@ var squibConfig = {
 
 describe('GPTHandler Test Suite', function () {
 
-    var gptHandler, mochGPT, config;
+    var gptHandler, mockGPT, config;
 
     beforeEach(function () {
         mochGPT = new MockGoogletag(),
         config = validate.createSquibConfig(squibConfig);
         gptHandler = new GPTHandler(mochGPT, config);
 
-        //spyOn(mochGPT, 'defineSlot')
+        //spyOn(mochGPT, 'defineSlot');
         //spyOn(mochGPT, 'defineSlot');
         //spyOn(mochGPT, 'pubads');
         //spyOn(mochGPT, 'addService');

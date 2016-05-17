@@ -71,6 +71,10 @@ describe('type test suite', function () {
         expect(type.getType(()=>{})).toEqual('function');
     });
 
+    it('type.getType(class {}) to equal "function"', function () {
+        expect(type.getType(class {})).toEqual('function');
+    });
+
     it('type.getType() to equal "undefined"', function () {
         expect(type.getType()).toEqual('undefined');
     });
