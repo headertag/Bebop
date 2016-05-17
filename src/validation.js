@@ -138,12 +138,12 @@ function createSlotConfig(jsonSlotConfig) {
                     var count = 0;
                     for(var key in jsonSlotConfig.viewPortSizes){
                         count++;
-                        if(jsonSlotConfig[key].length ===0){
+                        if(jsonSlotConfig.viewPortSizes[key].length ===0){
                             err['jsonSlotConfig['+key+'+]'] = 'hasLengthZero';
                         }
-                        for(var i = 0;i<jsonSlotConfig[key];i++){
-                            if(isNaN(jsonSlotConfig[key][i][0])||isNaN(jsonSlotConfig[key][i][0])){
-                                err['jsonSlotConfig['+key+']['+i+']'] = 'isNotTwoNumbers';
+                        for(var i = 0;i<jsonSlotConfig.viewPortSizes[key];i++){
+                            if(isNaN(jsonSlotConfig.viewPortSizes[key][i][0])||isNaN(jsonSlotConfig.viewPortSizes[key][i][0])){
+                                err['jsonSlotConfig.viewPortSizes['+key+']['+i+']'] = 'isNotTwoNumbers';
                             }
                             
                         }
