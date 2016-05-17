@@ -1,5 +1,12 @@
 'use strict';
 
+/**
+ * Depends on type
+ *
+ * type module.
+ * @module util
+ */
+
 var type = require('./type');
 
 function enforceType(test, types) {

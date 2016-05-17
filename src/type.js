@@ -1,5 +1,10 @@
 'use strict';
 
+/**
+ * type module.
+ * @module type
+ */
+
 function isArray(test) {
     if (typeof Array.isArray === 'function') {
         return Array.isArray(test);

@@ -93,6 +93,12 @@ GPTHandler.prototype.setSlotTargeting = function (gptSlot, key, value) {
     });
 };
 
+GPTHandler.prototype.clearSlotTargeting = function (gptSlot) {
+    this.q(function () {
+        gptSlot.clearTargeting();
+    });
+};
+
 GPTHandler.prototype.setTargets = function (key, value) {
     this.q(function (self) {
         self.tag().pubads().setTargeting(key, value);

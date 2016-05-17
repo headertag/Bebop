@@ -12,44 +12,29 @@ var SquibSlot = require('./squibslot'),
     slots,
     gpt;
 
-// PRIVATE FUNCTIONS
-function filterSlots(slots, gptSlots) {
-    var filtered = [];
-
-    gptSlots = type.isBool(gptSlots) ? gptSlots : true;
-
-    util.foreach(slots, function (slot) {
-
-        var divId = slot.getGPTDivId(),
-            squibSlot = slots[divId];
-
-        if (type.isObj(squibSlot)) {
-            if (gptSlots) {
-                filtered.push(squibSlot.getGPTSlot());
-            }
-            else {
-                filtered.push(squibSlot);
-            }
-        }
-
-        //? if (DEBUG) {
-        if (!type.isObj(squibSlot)) {
-            log.warn('Squib has no information about slot with gpt div id: ' + divId);
-        }
-        //? }
-
-    });
-    return filtered;
-}
-
 // PUBLIC API
+/**
+ * @class Squib
+ */
 function Squib(gptHandler, cfg) {
     config = cfg;
     gpt = gptHandler;
     slots = {};
 }
 
+/**
+ * TODO doc this
+ *
+ * @typedef {Object} SlotJSON
+ */
+
+/**
+ * @param {SlotJSON[]} slotsConfig
+ * @return {SquibSlot[]}
+ * @throws if slotsConfig is not an array of SlotJSON
+ */
 Squib.prototype.defineSlots = function (slotsConfig) {
+    util.enforceType(slotsConfig, 'array');
     var squibSlots = [];
     util.foreach(slotsConfig, function (slotConfig) {
         var squibSlot = this.defineSlot(slotConfig);
