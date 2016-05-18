@@ -18,6 +18,7 @@
 var GPTHandler = require('./../src/gpthandler');
 var validate = require('./../src/validation');
 var MockGoogletag = require('./mockgoogletag');
+var Slot = require('./../src/slot');
 
 var bebopConfig = {
     viewPortSizes: {
@@ -63,22 +64,39 @@ var slots = [
 
 describe('Slot Test Suite', function () {
 
-    var gptHandler, mockGPT, squibConfig;
+    var gptHandler, mockGPT, bebopSettings;
 
     beforeEach(function () {
-        mochGPT = new MockGoogletag(),
+        mockGPT = new MockGoogletag();
         bebopSettings = validate.createBebopSettings(bebopConfig);
-        gptHandler = new GPTHandler(mochGPT, bebopSettings);
+        gptHandler = new GPTHandler(mockGPT, bebopSettings);
 
     });
 
-    it('SquibSlot instantiation with valid information should work correctly', function () {
+    it('Slot instantiation with valid information should work correctly', function () {
         var slotSettings = validate.createSlotSettings(slots[0]),
-            slot;
-        // Haven't determined yet what should be the check here...
-        //expect(type.getType(squibSlot)).toEqual('object');
+            slot = new Slot(mochGPT, slotSettings, bebopSettings.viewPort);
+        expect(slot).toBeDefined();
+    });
+
+    it('Missing gpthandler should throw', function () {
+        var slotSettings = validate.createSlotSettings(slots[0]);
         expect(function () {
-            squibSlot = new Slot(mochGPT, slotSettings, bebopSettings);
+            new Slot(undefined, slotSettings, bebopSettings.viewPort);
+        }).toThrow();
+    });
+
+    it('Missing slotConfig should throw', function () {
+        var slotSettings = validate.createSlotSettings(slots[0]);
+        expect(function () {
+            new Slot(mockGPT, undefined, bebopSettings.viewPort);
+        }).toThrow();
+    });
+
+    it('Missing viewPortCfg should throw', function () {
+        var slotSettings = validate.createSlotSettings(slots[0]);
+        expect(function () {
+            new Slot(mockGPT, slotSettings);
         }).toThrow();
     });
 });
