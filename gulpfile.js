@@ -26,7 +26,7 @@ var Jasmine = require('jasmine');
 
 // Helpers
 var buildDir = './final/';
-var buildName = 'squib';
+var buildName = 'bebop';
 var entryPoint = './src/main.js';
 
 var uglifyOptions = {

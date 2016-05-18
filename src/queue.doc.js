@@ -8,12 +8,12 @@
  * configuration by reading window.bebopConfig. The seconds
  * thing it will do is run all the functions stored in the queue.
  * It reads and executes function from begining to end the end of
- * the queue. It is safe, however unadvised to add functions to the
+ * the queue. It is safe, however, unadvised to add functions to the
  * queue while it is being executed.
  *
  * @typedef {(Object|Array.<BebopQueueCallback>)} bebopQueue
  *
- * @property {function} push
+ * @property {function} push - Will throw an error if the paramater passed to push is not a function.
  *
  * @example
  * window.bebopQueue = window.bebopQueue || [];

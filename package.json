@@ -1,7 +1,7 @@
 {
-  "name": "squib",
-  "version": "0.0.2",
-  "description": "GPT Library",
+  "name": "bebop",
+  "version": "0.8.0",
+  "description": "A Wrapper around the google publisher tag library",
   "main": "index.js",
   "scripts": {
     "doc": "./node_modules/.bin/jsdoc -d ./docs ./src/*.js"

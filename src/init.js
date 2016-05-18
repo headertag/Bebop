@@ -2,7 +2,7 @@
 
 // classes
 var GPTHandler = require('./gpthandler'),
-    Squib = require('./squib'),
+    Bebop = require('./bebop'),
 // functions
     validate = require('./validation'),
     log = require('./log').log,
@@ -10,47 +10,41 @@ var GPTHandler = require('./gpthandler'),
     util = require('./util');
 
 function init(window) {
-    var bebopConfig, gptHandler, squib;
+    var bebopSettings, gptHandler, bebop;
 
     window.googletag = window.googletag || { cmd: [] };
 
-    if (!type.isObj(window.squibConfig)) {
-        throw new Error('window.squibConfig is not an object');
+    if (!type.isObj(window.bebopConfig)) {
+        throw new Error('window.bebopConfig is not an object');
     }
 
-    bebopConfig = validate.createBebopSettings(window.squibConfig);
+    bebopSettings = validate.createBebopSettings(window.bebopConfig);
 
-    if (bebopConfig.gpt.loadTag()) {
+    if (bebopSettings.gpt.loadTag()) {
         GPTHandler.loadGoogletag(window);
     }
 
-    gptHandler = new GPTHandler(window.googletag, bebopConfig);
-    squib = new Squib(gptHandler, bebopConfig);
+    gptHandler = new GPTHandler(window.googletag, bebopSettings);
+    bebop = new Bebop(gptHandler, bebopSettings);
 
-    if (type.isObj(window.squib)) {
-        util.foreachProp(window.squib, function (key, value) {
-            if (!type.isUndef(squib[key])) {
-                throw new Error('Can not override public method: ' + key);
-            }
-        });
-    }
-
-    runQueue(window, squib);
+    runQueue(window, bebop);
 }
 
-function runQueue(window, squib) {
+function runQueue(window, bebop) {
     var callback;
-    util.enforceType(window.squibQueue, 'array');
-    while (window.squibQueue.length > 0) {
-        callback = window.squibQueue.shift();
+
+    util.enforceType(window.bebopQueue, 'array');
+
+    while (window.bebopQueue.length > 0) {
+        callback = window.bebopQueue.shift();
         util.enforceType(callback, 'function');
-        callback(squib);
+        callback(bebop);
     }
 
-    window.squibQueue = {
+    window.bebopQueue = {
         push: function (callback) {
             util.enforceType(callback, 'function');
-            callback(squib);
+            callback(bebop);
         }
     };
 }

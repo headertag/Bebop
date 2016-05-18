@@ -19,9 +19,10 @@ var type = require('./type');
  * util.enforceType(null, ['object', 'array']) // throws an Error
  */
 function enforceType(test, types) {
-    var msg;
+    var msg, strTypes;
     if (!type.isOneOf(test, types)) {
-        msg = 'Expcted types: [' + types.join(', ') + '] got: ' + type.getType(test);
+        strTypes = type.isArray(types) ? types.join(', ') : types;
+        msg = 'Expcted types: [' + strTypes + '] got: ' + type.getType(test);
         throw new Error(msg);
     }
 }
