@@ -10,7 +10,7 @@ var GPTHandler = require('./gpthandler'),
     util = require('./util');
 
 function init(window) {
-    var squibConfig, gptHandler, squib;
+    var bebopConfig, gptHandler, squib;
 
     window.googletag = window.googletag || { cmd: [] };
 
@@ -18,14 +18,14 @@ function init(window) {
         throw new Error('window.squibConfig is not an object');
     }
 
-    squibConfig = validate.createSquibConfig(window.squibConfig);
+    bebopConfig = validate.createBebopSettings(window.squibConfig);
 
-    if (squibConfig.gpt.loadTag()) {
+    if (bebopConfig.gpt.loadTag()) {
         GPTHandler.loadGoogletag(window);
     }
 
-    gptHandler = new GPTHandler(window.googletag, squibConfig);
-    squib = new Squib(gptHandler, squibConfig);
+    gptHandler = new GPTHandler(window.googletag, bebopConfig);
+    squib = new Squib(gptHandler, bebopConfig);
 
     if (type.isObj(window.squib)) {
         util.foreachProp(window.squib, function (key, value) {

@@ -63,16 +63,28 @@
  */
 
 /**
- * A SizeCatagoryMap represents the sizes of a slot for each catagory
+ * A SizeCatagoryMap represents the sizes of a slot for 1 or more catagories
  *
  * @typedef {Object} SizeCatagoryMap
+ * @property {(SingleSize|MultipleSize)} huge - The size(s) to be applied to this slot.
+ * @property {(SingleSize|MultipleSize)} large - The size(s) to be applied to this slot.
+ * @property {(SingleSize|MultipleSize)} medium - The size(s) to be applied to this slot.
+ * @property {(SingleSize|MultipleSize)} small - The size(s) to be applied to this slot.
+ * @property {(SingleSize|MultipleSize)} tiny - The size(s) to be applied to this slot.
  *
  * @example
  * {
- *      'huge'      :   [ [970, 250] ],
- *      'large'     :   [ [728, 90] ],
- *      'medium'    :   [ [320, 90] ],
- *      'small'     :   [ [300, 50] ],
- *      'tiny'      :   [ [200, 50] ]
+ *      'huge'      :   [ [970, 250], [728, 90] ],
+ *      'large'     :   [728, 90],
+ *      'medium'    :   [320, 90],
+ *      'small'     :   [300, 50],
+ *      'tiny'      :   [200, 50]
  * }
+ */
+
+/**
+ * @typedef {Array.<string>} InterstitalViewPortSizes
+ * @example
+ * // This array must contain 1 or more of the following sizes
+ * viewPortSizes: ['huge', 'large', 'medium', 'small', 'tiny']
  */

@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * @module private/config
+ * @module private/settings
  */
 
 var type = require('./type'),
@@ -13,7 +13,14 @@ function errorCheck(errors) {
     }
 }
 
-function HeadertagConfig(enabled, reference) {
+/**
+ * HeadertagSettings is not part of the public Bebop API.
+ *
+ * @class
+ * @param {boolean} [enabled=false] - True if headertag is enabled, false otherwise.
+ * @param {Object?} reference - A reference to the global headertag object.
+ */
+function HeadertagSettings(enabled, reference) {
     //Enabled :bool, default false;  reference: function
     var errors = [], msg = '';
 
@@ -41,22 +48,40 @@ function HeadertagConfig(enabled, reference) {
             }
     }
 
+    /**
+     * @return {Array.<string>} An array of errors or a 0 length array when no errors have occured.
+     */
     this.errors = function () {
         return errors;
     };
 
+    /**
+     * @return {boolean} True if headertag is enabled, false otherwise.
+     * @throws If the {@link HeadertagConfig} object is invalid.
+     */
     this.enabled = function () {
         errorCheck(errors);
         return enabled;
     };
 
+    /**
+     * @return {Headertag} A reference to the global headertag object.
+     * @throws If the {@link HeadertagConfig} object is invalid.
+     */
     this.reference = function () {
         errorCheck(errors);
         return reference();
     };
 }
 
-function GPTConfig(disableInitalLoad, loadTag) {
+/**
+ * GPTSettings is not part of the public Bebop API.
+ *
+ * @class
+ * @param {boolean} [disableInitalLoad=false] - True if the page's GPT Setup disables the inital load.
+ * @param {boolean} [loadTag=false] - True if Bebop is to load {@link Googletag}.
+ */
+function GPTSettings(disableInitalLoad, loadTag) {
     var errors = [], msg = '';
 
     switch (type.getType(disableInitalLoad)) {
@@ -79,25 +104,41 @@ function GPTConfig(disableInitalLoad, loadTag) {
             errors.push(msg);
     }
 
+    /**
+     * @return {Array.<string>} An array of errors or a 0 length array when no errors have occured.
+     */
     this.errors = function () {
         return errors;
     };
 
+    /**
+     * @return {boolean} True if the page's GPT Setup disables the inital load.
+     * @throws If the {@link GPTConfig} object is invalid
+     */
     this.disableInitalLoad = function () {
         errorCheck(errors);
         return disableInitalLoad;
     };
 
+    /**
+     * @return {boolean} True if Bebop is to load {@link Googletag}.
+     * @throws If the {@link GPTConfig} object is invalid
+     */
     this.loadTag = function () {
         errorCheck(errors);
         return loadTag;
     };
 }
 
-function ViewPortConfig(vpsConfig) {
-    //vpsConfig is obj,  getViewPortSize is func , viewCatagories is object, viewCatagories[size] is number
+/**
+ * ViewPortSettings is not part of the public Bebop API.
+ *
+ * @class
+ * @param {ViewPortConfig} vpsConfig
+ */
+function ViewPortSettings(vpsConfig) {
     var viewCatagories = {'huge': 0, 'large': 0, 'medium': 0, 'small': 0, 'mini': 0},
-        getViewPortSize,
+        getViewPortWidth,
         errors = [],
         msg = '';
 
@@ -107,10 +148,10 @@ function ViewPortConfig(vpsConfig) {
         vpsConfig = {};
     }
 
-    getViewPortSize = vpsConfig.getViewPortSize;
+    getViewPortWidth = vpsConfig.getViewPortWidth;
 
-    if (!type.isFunc(getViewPortSize)) {
-        msg = 'viewPortSizes.getViewPortSize Option: type: function, required: true';
+    if (!type.isFunc(getViewPortWidth)) {
+        msg = 'viewPortSizes.getViewPortWidth Option: type: function, required: true';
         errors.push(msg);
     }
 
@@ -134,10 +175,19 @@ function ViewPortConfig(vpsConfig) {
         errors.push(msg);
     }
 
+    /**
+     * @return {Array.<string>} An array of errors or a 0 length array when no errors have occured.
+     */
     this.errors = function () {
         return errors;
     };
 
+    /**
+     * Finds the active size catagory.
+     *
+     * @return {string} The active size catagory
+     * @throws If the {@link ViewPortConfig} object is invalid
+     */
     this.viewCatagory = function () {
         var width, sizeCatagory;
 
@@ -156,23 +206,42 @@ function ViewPortConfig(vpsConfig) {
         return sizeCatagory;
     };
 
+    /**
+     * @return {ViewPortConfig}
+     * @throws If the {@link ViewPortConfig} object is invalid
+     */
     this.viewCatagories = function () {
         errorCheck(errors);
         return viewCatagories;
     };
 
+    /**
+     * @return {number} The view
+     * @throws If the {@link ViewPortConfig} object is invalid
+     */
     this.viewPortSize = function () {
         errorCheck(errors);
-        return getViewPortSize();
+        return getViewPortWidth();
     };
 }
 
-function SquibConfig(headertagConfig, gptConfig, viewPortConfig) {
+/**
+ * BebopSettings is not part of the public Bebop API.
+ *
+ * @class
+ * @param {HeadertagSettings} headertagSettings
+ * @param {GPTSettings} gptSettings
+ * @param {ViewPortSettings} viewPortSettings
+ */
+function BebopSettings(headertagSettings, gptSettings, viewPortSettings) {
     var errors = [];
 
-    this.headertag = headertagConfig;
-    this.gpt = gptConfig;
-    this.viewPort = viewPortConfig;
+    /** @param */
+    this.headertag = headertagSettings;
+    /** @param */
+    this.gpt = gptSettings;
+    /** @param */
+    this.viewPort = viewPortSettings;
 
     errors = errors.concat(
         this.headertag.errors(),
@@ -180,14 +249,30 @@ function SquibConfig(headertagConfig, gptConfig, viewPortConfig) {
         this.viewPort.errors()
     );
 
+    /**
+     * Reports on all errors from headertagSettings, gptSettings and viewPortSettings.
+     *
+     * @return {Array.<string>} An array of erros or a 0 length array when no errors have occured.
+     */
     this.errors = function () {
         return errors;
     };
 }
 
+/**
+ * SlotSettings is not part of the public Bebop API
+ *
+ * @class
+ *
+ *
+ */
+function SlotSettings(slotConfig) {
+
+}
+
 module.exports = {
-    HeadertagConfig: HeadertagConfig,
-    GPTConfig: GPTConfig,
-    ViewPortConfig: ViewPortConfig,
-    SquibConfig: SquibConfig
+    HeadertagSettings: HeadertagSettings,
+    GPTSettings: GPTSettings,
+    ViewPortSettings: ViewPortSettings,
+    BebopSettings: BebopSettings
 };

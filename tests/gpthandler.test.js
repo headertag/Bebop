@@ -8,9 +8,9 @@ var GPTHandler = require('./../src/gpthandler');
 var validate = require('./../src/validation');
 var MockGoogletag = require('./mockgoogletag');
 
-var squibConfig = {
+var bebopConfig = {
     viewPortSizes: {
-        getViewPortSize: function () { return 500; },
+        getViewPortWidth: function () { return 500; },
         'large'     : 500,
         'medium'    : 0
     }
@@ -22,7 +22,7 @@ describe('GPTHandler Test Suite', function () {
 
     beforeEach(function () {
         mochGPT = new MockGoogletag(),
-        config = validate.createSquibConfig(squibConfig);
+        config = validate.createBebopSettings(bebopConfig);
         gptHandler = new GPTHandler(mochGPT, config);
 
         //spyOn(mochGPT, 'defineSlot');

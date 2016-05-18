@@ -29,7 +29,7 @@
  *              return window.document.documentElement.clientWidth;
  *          },
  *          'large'     : 768,
- *          'medium'    : 0
+ *          'small'    : 0
  *      }
  * };
  * </script>
@@ -65,7 +65,11 @@
  */
 
 /**
- * Only one size catagory is required
+ * The ViewPortConfig object is used to determine what sizes to apply to slots {@link SlotConfig}.
+ * This feature is very handy if the publisher wishes to use the same divs accross
+ * multiple screen sizes.
+ *
+ * Only one size catagory is required.
  *
  * @typedef {Object} ViewPortConfig
  *
@@ -82,11 +86,11 @@
  *      getViewPortWidth: funtion () {
  *          return window.document.documentElement.clientWidth;
  *      },
- *      huge: 1200
- *      large: 800,
- *      medium: 600,
- *      small: 400,
- *      tiny: 0
+ *      'huge': 1200
+ *      'large': 800,
+ *      'medium': 600,
+ *      'small': 400,
+ *      'tiny': 0
  * }
  * // An example where only one size catagory is defined
  * viewPort: {
@@ -95,4 +99,68 @@
  *      },
  *      medium: 0
  * }
+ */
+
+/**
+ * SlotConfig object are what is passed to bebop.defineSlot and bebop.defineSlots
+ *
+ * @typedef SlotConfig
+ *
+ * @property {AdUnitPath} adUnitPath - Full path of the ad unit with the network code and unit name.
+ * @property {GPTDivId} gptDivId - The ID of a div that is used to render a creative.
+ * @property {boolean} [interstitial=false] - True if the slot is an out of page slot.
+ * @property {boolean} [laztload=false] - True if the slot is to be lazyloaded.
+ * @property {boolean} [defineOnDisplay=false] - True if the define call should be delayed until the slot is to be displayed.
+ * @property {TargetingMap?} targeting - Key value pairs of targeting that is applyed to the slot.
+ * @property {(SizeCatagoryMap|InterstitalViewPortSizes)} viewPortSizes - If the slot is interstitial you must use the {@link InterstitalViewPortSizes}
+ *
+ * @example
+ * window.bebopQueue.push(function (bebop) {
+ *      var slot = bebop.defineSlot({
+ *          gptDivId: "dfp-ad-leaderboard",
+ *          adUnitPath: dfpNetworkID,
+ *          targeting: {
+ *              "pos": "top"
+ *          },
+ *          viewPortSizes: {
+ *              large: [ [728, 90], [970, 66], [970, 90], [970, 250] ],
+ *              small: [ [320, 50], [300, 50], [300, 100] ]
+ *          }
+ *      });
+ *      if (slot.isActive()) {
+ *          bebop.display(slot);
+ *      }
+ * });
+ *
+ * window.bebopQueue.push(function (bebop) {
+ *      var slots = squib.defineSlots([
+ *          {
+ *              gptDivId: "dfp-ad-lazyload",
+ *              adUnitPath: dfpNetworkID,
+ *              targeting: {
+ *                  "pos": "right3"
+ *              },
+ *              lazyload: true,
+ *              defineOnDisplay: true,
+ *              viewPortSizes: {
+ *                  large: [ [300, 250], [300, 252] ],
+ *                  small: [ [300, 50], [320, 50], [300, 100] ]
+ *              }
+ *          }, {
+ *              gptDivId: "dfp-ad-interstitial",
+ *              adUnitPath: dfpNetworkID,
+ *              interstitial: true,
+ *              targeting: {
+ *                  "pos": ['interstitial']
+ *              },
+ *              viewPortSizes: ['large']
+ *          }
+ *      ]);
+ *
+ *      slots.forEach(function (slot) {
+ *          if (slot.isActive() && !slot.isLazyLoad()) {
+ *              bebop.display(slot);
+ *          }
+ *      });
+ * });
  */

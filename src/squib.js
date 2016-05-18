@@ -48,7 +48,7 @@ Squib.prototype.defineSlots = function (slotsConfig) {
 };
 
 Squib.prototype.defineSlot = function (slotConfig) {
-    var slotCfg = validator.createSlotConfig(slotConfig),
+    var slotCfg = validator.createSlotSettings(slotConfig),
         squibSlot = new SquibSlot(gpt, slotCfg, config.viewPort);
     slots[squibSlot.getGPTDivId()] = squibSlot;
     return squibSlot;

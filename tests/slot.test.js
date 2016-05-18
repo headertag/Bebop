@@ -19,9 +19,9 @@ var GPTHandler = require('./../src/gpthandler');
 var validate = require('./../src/validation');
 var MockGoogletag = require('./mockgoogletag');
 
-var squibConfig = {
+var bebopConfig = {
     viewPortSizes: {
-        getViewPortSize: function () { return 500; },
+        getViewPortWidth: function () { return 500; },
         'large'     : 500,
         'medium'    : 0
     }
@@ -36,7 +36,7 @@ var slots = [
             'large'     :   [ [728, 90] ],
             'medium'    :   [ [320, 90] ],
             'small'     :   [ [300, 50] ],
-            'mini'      :   [ [200, 50] ]
+            'tiny'      :   [ [200, 50] ]
         },
         'lazyLoad': false,
         'sticky': false,
@@ -61,24 +61,24 @@ var slots = [
     }
 ];
 
-describe('SquibSlot Test Suite', function () {
+describe('Slot Test Suite', function () {
 
     var gptHandler, mockGPT, squibConfig;
 
     beforeEach(function () {
         mochGPT = new MockGoogletag(),
-        squibConfig = validate.createSquibConfig(squibConfig);
-        gptHandler = new GPTHandler(mochGPT, config);
+        bebopSettings = validate.createBebopSettings(bebopConfig);
+        gptHandler = new GPTHandler(mochGPT, bebopSettings);
 
     });
 
     it('SquibSlot instantiation with valid information should work correctly', function () {
-        var slotConfig = validator.createSlotConfig(slots),
-            squibSlot;// = new SquibSlot(mochGPT, slotConfig, squibConfig);
+        var slotSettings = validate.createSlotSettings(slots[0]),
+            slot;
         // Haven't determined yet what should be the check here...
         //expect(type.getType(squibSlot)).toEqual('object');
         expect(function () {
-            squibSlot = new SquibSlot(mochGPT, slotConfig, squibConfig);
+            squibSlot = new Slot(mochGPT, slotSettings, bebopSettings);
         }).toThrow();
     });
 });
