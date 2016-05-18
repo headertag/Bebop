@@ -5,20 +5,6 @@ var util = require('./util'),
     log = require('./log').log;
 
 /**
- * A GPTSlot is any slot that has been created by calling
- * googletag.defineSlot or googletag.defineOutOfPageSlot
- *
- * @typedef {Object} GPTSlot
- */
-
-/**
- * A key value pairs of targeting the is applyed to the underlining
- * GPTSLot
- *
- * @typedef {Object} TargetingMap
- */
-
-/**
  * @class SquibSlot
  */
 function SquibSlot(gptHandler, slotConfig, squibConfig) {
@@ -100,7 +86,7 @@ SquibSlot.prototype.defineSlot = function () {
 };
 
 /**
- * @return {boolean} true if the underlining googletag slot is defined, false otherwise
+ * @return {boolean} true if the underlining [GPTSlot]{@link GPTSlot} is defined, false otherwise
  */
 SquibSlot.prototype.isDefined = function () {
     return type.isObj(this.private.gptSlot);
@@ -167,7 +153,7 @@ SquibSlot.prototype.isInterstitial = function () {
  */
 SquibSlot.prototype.defineOnDisplay = function () {
     return this.private.cfg.defineOnDisplay();
-}
+};
 
 /**
  * A slot is active if the slot is configued for use in the current page mode
@@ -199,10 +185,10 @@ SquibSlot.prototype.getTargeting = function () {
 };
 
 /**
- * Applies targeting to the underlying GPTSlot
+ * Applies targeting to the underlying [GPTSlot]{@link GPTSlot}
  *
- * @param {string} key
- * @param {(string|Array.<(string|number)>)}
+ * @param {string} key Targeting parameter key.
+ * @param {(string|Array.<(string|number)>)} value Targeting parameter value or list of values.
  *
  */
 SquibSlot.prototype.setTargeting = function (key, value) {
@@ -238,6 +224,6 @@ SquibSlot.prototype.clearTargeting = function (key) {
             util.foreachProp(that.private.targetingMap, that.setTargeting, that);
         });
     }
-}
+};
 
 module.exports = SquibSlot;

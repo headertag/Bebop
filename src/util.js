@@ -1,14 +1,23 @@
 'use strict';
 
 /**
- * Depends on type
+ * The util module is not a part of the public API
  *
- * type module.
  * @module util
  */
 
 var type = require('./type');
 
+/**
+ * @param {any} test The value to be tested
+ * @param {(string|Array.<string>)} types A list of types to check.
+ *
+ * @throws If test's type is not in types
+ *
+ * @example
+ * util.enforceType(true, 'boolean')
+ * util.enforceType(null, ['object', 'array']) // throws an Error
+ */
 function enforceType(test, types) {
     var testType = type.getType(test), msg, i, len;
 
@@ -28,19 +37,30 @@ function enforceType(test, types) {
     throw new Error(msg);
 }
 
-function isEmptyObject(obj) {
+/**
+ * @param {Object} object The object to check.
+ * @return {boolean} true if object is empty, false otherwise
+ */
+function isEmptyObject(object) {
     var prop;
     //? if (ASSERT_TYPE)
-    enforceType(obj, 'object');
+    enforceType(object, 'object');
 
-    for (prop in obj) {
-        if (obj.hasOwnProperty(prop)) {
+    for (prop in object) {
+        if (object.hasOwnProperty(prop)) {
             return false;
         }
     }
     return true;
 }
 
+/**
+ * @param {Object} object The Object to check.
+ * @param {(string|number)} property The property to look for.
+ * @param {boolean} [checkParents=false] If true check the parent object, if false only check object.
+ *
+ * @return {boolean} true if the Object contains the property
+ */
 function hasProp(object, property, checkParents) {
     //? if (ASSERT_TYPE) {
     enforceType(object, 'object');
@@ -58,6 +78,25 @@ function hasProp(object, property, checkParents) {
     return object.hasOwnProperty(property);
 }
 
+/**
+ * Iterates over each key and value in an object
+ *
+ * The callback may return any value besides undefined, if this happens
+ * foreachProp will stop iterating over the object and return that value
+ *
+ * @param {Object} object
+ * @param {foreachPropCallback} callback This function will be called for key value pair in the object.
+ * @param {Object?} [thisArg=window] Value to use as this when executing callback. Default value is the Window object.
+ * @param {boolean} [checkParents=false] If true iterate over parent object properties, if
+ * false only iterate over properties in object.
+ *
+ * @example
+ * var sizeCatagory = util.foreachProp(viewCatagories, function (catagory, size) {
+ *     if (768 >= size) {
+ *         return catagory;
+ *     }
+ * });
+ */
 function foreachProp(object, callback, thisArg, checkParents) {
     var prop, ret;
     //? if (ASSERT_TYPE) {
@@ -77,6 +116,23 @@ function foreachProp(object, callback, thisArg, checkParents) {
     }
 }
 
+/**
+ * Iterates over each entry in an array
+ *
+ * The callback may return any value besides undefined, if this happens
+ * foreach will stop iterating over the array and return that value.
+ *
+ * @param {Array.<*>} array
+ * @param {foreachCallback} callback This function will be called for each element of the array.
+ * @param {Object} [thisArg=window] Value to use as this when executing callback. Default value is the Window object.
+ *
+ * @example
+ * var inArray = util.foreach(array, function (element, i) {
+ *     if (42 === element) {
+ *         return true;
+ *     }
+ * });
+ */
 function foreach(array, callback, thisArg) {
     var i, len, ret;
     //? if (ASSERT_TYPE) {
@@ -92,6 +148,13 @@ function foreach(array, callback, thisArg) {
     }
 }
 
+/**
+ * Returns trus if needle is in haystack. All equality comparisons are done with ===
+ *
+ * @param {*} needle The value to search for.
+ * @param {Array.<*>} haystack The array to search in.
+ * @return {boolean} true if needle is in heystack, false otherwise
+ */
 function inArray(needle, heystack) {
     var ret;
 
@@ -110,6 +173,9 @@ function inArray(needle, heystack) {
     return ret === true;
 }
 
+/**
+ * @private
+ */
 function invalidStateError(errors) {
     var msg;
     //? if (ASSERT_TYPE)

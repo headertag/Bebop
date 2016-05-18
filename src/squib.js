@@ -34,8 +34,8 @@ function Squib(gptHandler, cfg) {
  * @throws if slotsConfig is not an array of SlotJSON
  */
 Squib.prototype.defineSlots = function (slotsConfig) {
-    util.enforceType(slotsConfig, 'array');
     var squibSlots = [];
+    util.enforceType(slotsConfig, 'array');
     util.foreach(slotsConfig, function (slotConfig) {
         var squibSlot = this.defineSlot(slotConfig);
         squibSlots.push(squibSlot);
@@ -64,11 +64,12 @@ Squib.prototype.refresh = function (slots, options) {
 
     // using the q here ensures that the slots are defined
     gpt.q(function () {
+        var gptSlots;
         if (type.isNull(slots)) {
             gpt.refresh(null, options);
         }
         else {
-            var gptSlots = [];
+            gptSlots = [];
             util.foreach(slots, function (slot) {
                 gptSlots.push(slot.getGPTSlot());
             });
@@ -93,7 +94,7 @@ Squib.prototype.display = function (slots) {
 
 Squib.prototype.setPageTargets = function (pageTargets) {
     util.enforceType(pageTargets, 'object');
-    util.foreachProp(pageTargets, gpt.setTargets, gpt);
+    util.foreachProp(pageTargets, gpt.setPageTarget, gpt);
 };
 
 module.exports = Squib;

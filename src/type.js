@@ -1,10 +1,15 @@
 'use strict';
 
 /**
- * type module.
+ * The type module is not part of the Bebop public API
  * @module type
  */
 
+/**
+ * @param {any} test The value to be tested.
+ *
+ * @return {boolean} true if test is an array, false otherwise.
+ */
 function isArray(test) {
     if (typeof Array.isArray === 'function') {
         return Array.isArray(test);
@@ -12,6 +17,14 @@ function isArray(test) {
     return Object.prototype.toString.call(test) === '[object Array]';
 }
 
+/**
+ * Returns the string value of the type.
+ * If test is null, "null" is returned
+ * If test is an array, "array" is returned
+ * If test is NaN, "NaN" is returned
+ *
+ * @return {string} The lower case name of the type.
+ */
 function type(test) {
     var theType;
     if (test === null) {
@@ -27,22 +40,47 @@ function type(test) {
     return theType;
 }
 
+/**
+ * @param {any} test The value to be tested.
+ *
+ * @return {boolean} true if test is a, false otherwise.
+ */
 function isObj(test) {
     return type(test) === 'object';
 }
 
+/**
+ * @param {any} test The value to be tested.
+ *
+ * @return {boolean} true if test is a string, false otherwise.
+ */
 function isStr(test) {
     return type(test) === 'string';
 }
 
+/**
+ * @param {any} test The value to be tested.
+ *
+ * @return {boolean} true if test is a number, false otherwise.
+ */
 function isNum(test) {
     return type(test) === 'number';
 }
 
+/**
+ * @param {any} test The value to be tested.
+ *
+ * @return {boolean} true if test is an Integer, false otherwise.
+ */
 function isInt(test) {
     return isNum(test) && (test | 0) === test;
 }
 
+/**
+ * @param {any} test The value to be tested.
+ *
+ * @return {boolean} true if test is a float
+ */
 function isFloat(test) {
     return isNum(test) && ((test | 0) !== test) &&
             // test for Infinities as they are not floats
@@ -50,19 +88,17 @@ function isFloat(test) {
 }
 
 /**
- * Returns true for cases like: 1e1, 0, -0x1, "01", "0", "-Infinity"
+ * Returns true if test is a number or a numeric string.
  *
- * Limitations:
+ * @example
+ * type.isNumeric("-0x1") -> false
+ * type.isNumeric(-0x1) -> true
+ * type.isNumeric(1e1) -> true
+ * type.isNumeric("-011e1") -> true
  *
- * From the Unary Plus section of:
- * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Arithmetic_Operators
+ * @param {any} test The value to be tested.
  *
- * "Negative numbers are supported (though not for hex).
- * If it cannot parse a particular value, it will evaluate to NaN."
- *
- * Examples:
- *  type.isNumeric("-0x1") -> false
- *  type.isNumeric(-0x1) -> true
+ * @return {boolean} true if test is numeric, false otherwise.
  */
 function isNumeric(test) {
     if (isNum(test)) {
@@ -74,19 +110,39 @@ function isNumeric(test) {
     return false;
 }
 
+/**
+ * @param {any} test The value to be tested.
+ *
+ * @return {boolean} true if test is a function, false otherwise.
+ */
 function isFunc(test) {
     return type(test) === 'function';
 }
 
+/**
+ * @param {any} test The value to be tested.
+ *
+ * @return {boolean} true if test is a boolean, false otherwise.
+ */
 function isBool(test) {
     return type(test) === 'boolean';
 }
 
+/**
+ * @param {any} test The value to be tested.
+ *
+ * @return {boolean} true if test is undefined, false otherwise.
+ */
 function isUndef(test) {
     return type(test) === 'undefined';
 }
 
 // just for completness
+/**
+ * @param {any} test The value to be tested.
+ *
+ * @return {boolean} true if test is null, false otherwise.
+ */
 function isNull(test) {
     return test === null;
 }
