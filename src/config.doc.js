@@ -1,5 +1,5 @@
 /**
- * @module config
+ * @module public/config
  */
 
 /**

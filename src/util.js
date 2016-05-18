@@ -3,7 +3,7 @@
 /**
  * The util module is not a part of the public API
  *
- * @module util
+ * @module private/util
  */
 
 var type = require('./type');
@@ -19,22 +19,11 @@ var type = require('./type');
  * util.enforceType(null, ['object', 'array']) // throws an Error
  */
 function enforceType(test, types) {
-    var testType = type.getType(test), msg, i, len;
-
-    types = type.isArray(types) ? types : [types];
-
-    if (type.isFunc(types.indexOf) && types.indexOf(testType) > -1) {
-        return;
+    var msg;
+    if (!type.isOneOf(test, types)) {
+        msg = 'Expcted types: [' + types.join(', ') + '] got: ' + type.getType(test);
+        throw new Error(msg);
     }
-
-    for (i = 0, len = types.length; i < len; i++) {
-        if (testType === types[i]) {
-            return;
-        }
-    }
-
-    msg = 'Expcted types: [' + types.join(', ') + '] got: ' + testType;
-    throw new Error(msg);
 }
 
 /**
@@ -189,6 +178,53 @@ function invalidStateError(errors) {
     throw new Error(msg);
 }
 
+function isValidAdUnitPath(adUnitPath) {
+    //return new RegExp('^/\d+[/.*]+').test(adUnitPath);
+    return type.isStr(adUnitPath);
+}
+
+function validateTargetingKey(key, errors) {
+    var keyStartChar = new RegExp(/^([0-9]).+/),
+        keyPatValChar = new RegExp(/("|'|=|!|\+|#|\*|~|;|\^|\(|\)|<|>|\[|\]|,|&| )/),
+        isValid = true;
+
+    if (keyStartChar.test(key)) {
+        errors.push('targeting key ' + key + ' starts with a number');
+        isValid = false;
+    }
+
+    if (keyPatValChar.test(key)) {
+        errors.push('targeting key ' + key + ' contains invalid characters');
+        isValid = false;
+    }
+
+    if (key.length > 20) {
+        errors.push('targeting key ' + key + ' exceeds max key length of 20 characters');
+        isValid = false;
+    }
+
+    return isValid;
+}
+
+function validateTargetingValue(value, errors) {
+    var valPat = new RegExp(/("|'|=|!|\+|#|\*|~|;|\^|\(|\)|<|>|\[|\]|&)/),
+        isValid;
+
+    if (!type.isOneOf(value, ['string', 'array', 'number'])) {
+        errors.push('Invalid targeting value, value is not a number, string or array');
+        isValid = false;
+        return isValid;
+    }
+
+    if (valPat.test(value)) {
+        errors.push('Invalid targeting value, value has invalid characters');
+    }
+
+    if (value.length > 40) {
+        errors.push('Invalid targeting value, value exceeds 40 characters');
+    }
+}
+
 module.exports = {
     enforceType: enforceType,
     isEmptyObject: isEmptyObject,
@@ -196,5 +232,8 @@ module.exports = {
     foreachProp: foreachProp,
     foreach: foreach,
     inArray: inArray,
-    invalidStateError: invalidStateError
+    invalidStateError: invalidStateError,
+    isValidAdUnitPath: isValidAdUnitPath,
+    validateTargetingKey: validateTargetingKey,
+    validateTargetingValue: validateTargetingValue
 };

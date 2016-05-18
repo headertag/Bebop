@@ -1,5 +1,5 @@
 /**
- * @module bebopQueue
+ * @module public/queue
  */
 
 /**

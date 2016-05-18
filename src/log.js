@@ -1,4 +1,8 @@
 
+/**
+ * @module private/log
+ */
+
 function log(msg) {
     log.info(msg);
 }

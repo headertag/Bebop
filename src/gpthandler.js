@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * @module private/gpthandler
+ */
+
 var util = require('./util'),
     log = require('./log').log,
     type = require('./type');
@@ -200,7 +204,7 @@ GPTHandler.prototype.clearSlotTargeting = function (gptSlot) {
  * @param {string} key - Targeting parameter key.
  * @param {(string|Array.<string>)} - Targeting parameter value or list of values.
  */
-GPTHandler.prototype.setPageTarget = function (key, value) {
+GPTHandler.prototype.setPageTargeting = function (key, value) {
 
     //? if (ASSERT_TYPE) {
     util.enforceType(key, 'string');
@@ -220,7 +224,7 @@ GPTHandler.prototype.setPageTarget = function (key, value) {
  */
 GPTHandler.loadGoogletag = function (window) {
     var gTag = window.document.createElement('script'),
-        protocol = 'https:' === document.location.protocol ? 'https:' : 'http:',
+        protocol = 'https:' === window.document.location.protocol ? 'https:' : 'http:',
         src = protocol + '//www.googletagservices.com/tag/js/gpt.js',
         node;
     gTag.async = true;

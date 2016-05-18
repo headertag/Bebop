@@ -1,13 +1,25 @@
 'use strict';
 
+/**
+ * @module public/slot
+ */
+
 var util = require('./util'),
     type = require('./type'),
     log = require('./log').log;
 
 /**
- * @class SquibSlot
+ * This Constructor is not part of the public Bebop API.
+ * To create a new Slot Object see {@link Bebop#defineSlot} or {@link Bebop#defineSlots}
+ * The Slot#private object is private and can change at any time.
+ *
+ * @class Slot
+ *
+ * @param {GPTHandler} gptHandler
+ * @param {Object} slotConfig
+ * @param {ViewPortConfig} viewPortCfg
  */
-function SquibSlot(gptHandler, slotConfig, squibConfig) {
+function Slot(gptHandler, slotConfig, viewPortCfg) {
 
     var self = this;
 
@@ -17,7 +29,7 @@ function SquibSlot(gptHandler, slotConfig, squibConfig) {
     this.private = {};
     this.private.gpt = gptHandler;
     this.private.cfg = slotConfig;
-    this.private.squibCfg = squibConfig;
+    this.private.viewPortCfg = viewPortCfg;
     this.private.targetingMap = this.private.cfg.targeting();
     this.private.gptSlot = null;
 
@@ -58,7 +70,7 @@ function SquibSlot(gptHandler, slotConfig, squibConfig) {
     if (!this.isActive()) {
         log.warn(
             'No size configured for catagory: ' +
-            this.private.squibCfg.viewPort.viewCatagory() +
+            this.private.viewPortCfg.viewCatagory() +
             ' for slot with id: ' + this.getGPTDivId()
         );
     }
@@ -66,11 +78,10 @@ function SquibSlot(gptHandler, slotConfig, squibConfig) {
 }
 
 /**
- * Defines the slot with googletag and applies targeting
- *
- * Works with interstitial and regular slots
+ * Creates the underlying {@link GPTSlot}. This method can be used to create both interstitial and regular slots.
+ * Upon creation of the slot [targeting]{@link Slot#getTargeting} will be applied to the slot.
  */
-SquibSlot.prototype.defineSlot = function () {
+Slot.prototype.defineSlot = function () {
     if (this.isDefined()) {
         // if (DEBUG) {
         log.warn('Slot with GPT Div Id: ' + this.getGPTDivId() + ' is already defined');
@@ -86,25 +97,23 @@ SquibSlot.prototype.defineSlot = function () {
 };
 
 /**
- * @return {boolean} true if the underlining [GPTSlot]{@link GPTSlot} is defined, false otherwise
+ * @return {boolean} true if the underlining {@link GPTSlot} is defined, false otherwise.
  */
-SquibSlot.prototype.isDefined = function () {
+Slot.prototype.isDefined = function () {
     return type.isObj(this.private.gptSlot);
 };
 
 /**
- * @return {string} The ad unit path
+ * @return {AdUnitPath} - The ad unit path
  */
-SquibSlot.prototype.getAdUnitPath = function () {
+Slot.prototype.getAdUnitPath = function () {
     return this.private.cfg.adUnitPath();
 };
 
 /**
- * Return
- *
- * @ return {Object}
+ * @return {SizeCatagoryMap} All catagories and sizes.
  */
-SquibSlot.prototype.getCatagories = function () {
+Slot.prototype.getCatagories = function () {
     return this.private.cfg.sizeCatagories();
 };
 
@@ -116,52 +125,50 @@ SquibSlot.prototype.getCatagories = function () {
  *
  * @return {Array.<Array.<number>>}
  */
-SquibSlot.prototype.getSizes = function () {
+Slot.prototype.getSizes = function () {
     var catagory;
     if (this.isInterstitial()) {
         return [];
     }
-    catagory = this.private.squibCfg.viewPort.viewCatagory();
+    catagory = this.private.viewPortCfg.viewCatagory();
     return this.private.cfg.viewPortSizes(catagory) || [];
 };
 
 /**
- * Returns the div id the slot is assosiated with
- *
- * @return {string}
+ * @return {GPTDivId} Returns the div id the slot is assosiated with.
  */
-SquibSlot.prototype.getGPTDivId = function () {
+Slot.prototype.getGPTDivId = function () {
     return this.private.cfg.gptDivId();
 };
 
 /**
- * @return {boolean} true if the slot is lazyloaded, false otherwise
+ * @return {boolean} true if the slot is lazyloaded, false otherwise.
  */
-SquibSlot.prototype.isLazyLoad = function () {
+Slot.prototype.isLazyLoad = function () {
     return this.private.cfg.lazyload();
 };
 
 /**
- * @return {boolean} true is the slot is an interstitial (Out Of Page), false otherwise
+ * @return {boolean} true is the slot is an interstitial (Out Of Page) slot, false otherwise.
  */
-SquibSlot.prototype.isInterstitial = function () {
+Slot.prototype.isInterstitial = function () {
     return this.private.cfg.interstitial();
 };
 
 /**
- * @return {boolean} true if the define call should be delayed untill the slot is to be displayed
+ * @return {boolean} true if the define call should be delayed until the slot is to be displayed.
  */
-SquibSlot.prototype.defineOnDisplay = function () {
+Slot.prototype.defineOnDisplay = function () {
     return this.private.cfg.defineOnDisplay();
 };
 
 /**
- * A slot is active if the slot is configued for use in the current page mode
+ * A slot is active if the slot is configued for use in the current page mode.
  *
- * @return {boolean}
+ * @return {boolean} True if the slot is active, false otherwise.
  */
-SquibSlot.prototype.isActive = function () {
-    var catagory = this.private.squibCfg.viewPort.viewCatagory();
+Slot.prototype.isActive = function () {
+    var catagory = this.private.viewPortCfg.viewCatagory();
     return (
         (this.isInterstitial() && util.inArray(catagory, this.getCatagories())) ||
         (this.getSizes().length > 0)
@@ -169,61 +176,80 @@ SquibSlot.prototype.isActive = function () {
 };
 
 /**
- * @return {GPTSlot} The underlying googletag slot
+ * @return {GPTSlot} The underlying googletag slot.
  */
-SquibSlot.prototype.getGPTSlot = function () {
+Slot.prototype.getGPTSlot = function () {
     return this.private.gptSlot;
 };
 
 /**
- * Returns all targeting
+ * Returns all targeting that is applied to the underlying {@link GPTSlot}
+ * if the slot is defined. If the slot has not yet been defined returns all
+ * targeting that will be applied to the slot.
  *
  * @return {TargetingMap}
  */
-SquibSlot.prototype.getTargeting = function () {
+Slot.prototype.getTargeting = function () {
+    if (this.isDefined()) {
+        return this.private.gptSlot.getTargetingMap();
+    }
     return this.private.targetingMap;
 };
 
 /**
- * Applies targeting to the underlying [GPTSlot]{@link GPTSlot}
+ * Applies targeting to the underlying {@link GPTSlot}. If the slot is not yet defined
+ * the targeting will be applied to the slot when it is defined.
  *
  * @param {string} key Targeting parameter key.
  * @param {(string|Array.<(string|number)>)} value Targeting parameter value or list of values.
  *
  */
-SquibSlot.prototype.setTargeting = function (key, value) {
+Slot.prototype.setTargeting = function (key, value) {
     var self = this;
     util.enforceType(key, 'string');
     util.enforceType(value, ['string', 'number', 'array']);
     this.private.targetingMap[key] = value;
-    this.private.gpt.q(function (gpt) {
-        gpt.setSlotTargeting(self.getGPTSlot(), key, value);
-    });
+    if (this.isDefined()) {
+        this.private.gpt.q(function (gpt) {
+            gpt.setSlotTargeting(self.getGPTSlot(), key, value);
+        });
+    }
 };
 
 /**
  * If key is a string clearTargeting will remove the targeting
- * from the underlying GPTSlot. If key is not passed all targeting
+ * from the underlying {@link GPTSlot}. If key is not passed all targeting
  * from the GPTSlot will be cleared.
  *
- * @param {string?}
+ * If the {@link GPTSlot} is not yet defined the targeting will not be applied to
+ * the slot.
+ *
+ * @param {string?} key - The targeting to be removed from the slot.
  */
-SquibSlot.prototype.clearTargeting = function (key) {
+Slot.prototype.clearTargeting = function (key) {
     var that = this;
+
     util.enforceType(key, ['string', 'undefined']);
+
     if (type.isUndef(key)) {
         this.private.targetingMap = {};
-        this.private.gpt.q(function (gpt) {
-            gpt.clearSlotTargeting(that.private.gptSlot);
-        });
     }
     else if (util.hasProp(this.private.targetingMap, key)) {
         delete this.private.targetingMap[key];
-        this.private.gpt.q(function () {
-            that.private.gptSlot.clearTargeting();
+    }
+    else {
+        //if? (DEBUG)
+        log.warn('Slot wight GPT Div Id' + this.getGPTDivId() + ' does not have a targeting key = ' + key);
+
+        return;
+    }
+
+    if (this.isDefined()) {
+        this.private.gpt.q(function (gpt) {
+            gpt.clearSlotTargeting(that.private.gptSlot);
             util.foreachProp(that.private.targetingMap, that.setTargeting, that);
         });
     }
 };
 
-module.exports = SquibSlot;
+module.exports = Slot;

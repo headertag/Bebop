@@ -1,7 +1,11 @@
 'use strict';
 
+/**
+ * @module public/bebop
+ */
+
 // CLASSES
-var SquibSlot = require('./squibslot'),
+var SquibSlot = require('./slot'),
 // MODULES
     validator = require('./validation'),
     log = require('./log').log,
@@ -45,7 +49,7 @@ Squib.prototype.defineSlots = function (slotsConfig) {
 
 Squib.prototype.defineSlot = function (slotConfig) {
     var slotCfg = validator.createSlotConfig(slotConfig),
-        squibSlot = new SquibSlot(gpt, slotCfg, config);
+        squibSlot = new SquibSlot(gpt, slotCfg, config.viewPort);
     slots[squibSlot.getGPTDivId()] = squibSlot;
     return squibSlot;
 };
@@ -94,7 +98,7 @@ Squib.prototype.display = function (slots) {
 
 Squib.prototype.setPageTargets = function (pageTargets) {
     util.enforceType(pageTargets, 'object');
-    util.foreachProp(pageTargets, gpt.setPageTarget, gpt);
+    util.foreachProp(pageTargets, gpt.setPageTargeting, gpt);
 };
 
 module.exports = Squib;

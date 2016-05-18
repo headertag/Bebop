@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * @module private/validation
+ */
+
 // Classes
 var squibConfig = require('./squibconfig'),
     HeadertagConfig = squibConfig.HeadertagConfig,
@@ -47,7 +51,6 @@ function createSquibConfig(jsonSquibConfig) {
     return squibConfig;
 }
 
-
 function createSlotConfig(jsonSlotConfig) {
     // TODO
     /*
@@ -56,109 +59,118 @@ function createSlotConfig(jsonSlotConfig) {
     OPT:  targeting, format :  Object, {key:value,key:value,.....}  value format : string/stringable
     lazyload: Optional, defaults to false.  Boolean value
     viewPortSizes: Object  : Format {large:[[width,height],[width,height],[width,height]],medium:[],small[]} // needs AT LEAST one key
-    
+
                          OR IFF interstitial==true, format is ['key1','key2','key3'.....] from above objects key types (such as large,small etc.
-    
+
     Validates configuration matches above described format, and if not, throws an exception.
     */
-    var err = {    
+
+    var viewPortSizes = ['huge', 'large', 'medium', 'small', 'tiny'],
+        isValidViewPortSizes = false,
+        errors = [],
+        warnings = [];
+
+    if (!type.isObj(jsonSlotConfig)) {
+        errors.push('Slot Configuration is undefined or invalid');
     }
-    if (typeof jsonSlotConfig === 'undefined'){
-        err['config'] = 'undefined';
-        throw err;
-    } else {
-        if(typeof jsonSlotConfig.adUnitPath === 'undefined'){
-            err['adUnitPath'] ='undefined';
-        }else{
-            var testAdUnitPath = new RegExp('^/\d+/.*');
-            if(testAdUnitPath.test(jsonSlotConfig.adUnitPath)){
-                
-            } else {
-                err['adUnitPath'] = 'invalidAdUnitPath';
+
+    if (!type.isStr(jsonSlotConfig.adUnitPath) || !util.isValidAdUnitPath(jsonSlotConfig.adUnitPath)) {
+        errors.push('Ad Unit Path is not defined or is invalid');
+    }
+
+    if (!type.isStr(jsonSlotConfig.gptDivId) || jsonSlotConfig.gptDivId === '') {
+        errors.push('GPT Div Id is not defined or is invalid');
+    }
+
+    if (type.isObj(jsonSlotConfig.targeting)) {
+        util.foreachProp(jsonSlotConfig.targeting, function (key, value) {
+            util.validateTargetingKey(key, errors);
+            util.validateTargetingValue(value, errors);
+        });
+    }
+    else {
+        warnings.push('No targeting parameters were passed with the slot definition object');
+    }
+
+    if (!type.isBool(jsonSlotConfig.lazyload)) {
+        jsonSlotConfig.lazyload = false;
+    }
+    else {
+        warnings.push('No lazyload parameter was passed, using default false');
+    }
+
+    if (!type.isBool(jsonSlotConfig.interstitial)) {
+        jsonSlotConfig.interstitial = false;
+    }
+    else {
+        warnings.push('No interstitial parameter was passed, using default false');
+    }
+
+    if (!type.isBool(jsonSlotConfig.defineOnDisplay)) {
+        jsonSlotConfig.defineOnDisplay = false;
+    }
+    else {
+        warnings.push('No defineOnDisplay parameter was passed, using default false');
+    }
+
+    if (!type.isUndef(jsonSlotConfig.viewPortSizes)) {
+
+        if (jsonSlotConfig.interstitial) {
+            if (!type.isArray(jsonSlotConfig.viewPortSizes)) {
+                errors.push('viewPortSizes must be an array of catagories for interstitial slots');
             }
-        }
-        
-        if(typeof jsonSlotConfig.gptDivId ==='undefined'){
-            err['gptDivId'] ='undefined';
-        } else if (typeof jsonSlotConfig.gptDivId === ''){
-            err['gptDivId']= 'emptyString';
-        }
-        
-        if( typeof jsonSlotConfig.targeting ==='object'){
-            var keyStartChar = new RegExp(/^([0-9]).+/);
-            var keyPatValChar = new RegExp(/("|'|=|!|\+|#|\*|~|;|\^|\(|\)|<|>|\[|\]|,|&| )/);
-            var valPat = new RegExp(/("|'|=|!|\+|#|\*|~|;|\^|\(|\)|<|>|\[|\]|&)/);
-            // !requrements for key, ^(?![0-9]).+("|'|=|!|\+|#|\*|~|;|\^|\(|\)|<|>|\[|\]|,|&| ) && length <20characters 
-            // Value: ("|'|=|!|\+|#|\*|~|;|\^|\(|\)|<|>|\[|\]|&) && length < 40 characters 
-            
-            
-            var sKey = "";
-            var sVal = "";
-            for ( var key in jsonSlotConfig.targeting){
-                sKey = String(key);
-                sVal = String(jsonSlotConfig.targeting[key]);
-                if(keyStartChar.test(sKey)){
-                    err['targeting.' + sKey+ '.keyStart'] = 'keyStartsWithNumber';
-                }
-                if(keyPatValChar.test(sKey) + '.keycontains'){
-                    err['targeting.' + sKey] = 'keyHasInvalidCharacter';
-                }
-                if(valPat.test(sVal)){
-                    err['targeting.' + sKey] = 'valueHasInvalidCharacter';
-                }
-                if(sKey.length >20){
-                    err['targeting.' + sKey + '.length'] = 'keyTooLongMax20';
-                }
-                if(sVal.length>40){
-                    err['targeting.' + sVal + '.length'] = 'keyTooLongMax20';
-                }
-            }
-        }
-        //Lazyload need not be checked at all - can just be used naiively with truthiness.
-        var emptyVPS = false;
-        if (typeof jsonSlotConfig.viewPortSizes ==='undefined'){
-            err['viewPortSizes'] = 'undefinedViewportSize';
-            emptyVPS = true;
-        }
-        if(jsonSlotConfig.interstitial&& !emptyVPS){
-            if(type.isArray(jsonSlotConfig.viewPortSizes)){
-                for(var i = 0; i< jsonSlotConfig.viewPortSizes.length;i++){
-                    if (!(typeof jsonSlotConfig.viewPortSizes[i] ==='string')){
-                        err['viewPortSizes['+ i+']'] = 'isNotAString';
+            else {
+                isValidViewPortSizes = false;
+                util.foreach(viewPortSizes, function (catagory) {
+                    if (util.inArray(catagory, jsonSlotConfig.viewPortSizes)) {
+                        isValidViewPortSizes = true;
                     }
-                }
-            } else {
-                err['viewPortSizes.interstitial'] = 'isInterstitialButViewportSizesNotArray'; 
-            }
-        } else {
-            if ( !emptyVPS ){
-                if(type.isArray(jsonSlotConfig.viewPortSizes)){
-                    err['viewPortSizes.notInterstitial'] = 'viewPortSizesIsArrayWhileNotInterstitialAd';
-                } else if ( type.isObj(jsonSlotConfig.viewPortSizes)){
-                    var count = 0;
-                    for(var key in jsonSlotConfig.viewPortSizes){
-                        count++;
-                        if(jsonSlotConfig.viewPortSizes[key].length ===0){
-                            err['jsonSlotConfig['+key+'+]'] = 'hasLengthZero';
-                        }
-                        for(var i = 0;i<jsonSlotConfig.viewPortSizes[key];i++){
-                            if(isNaN(jsonSlotConfig.viewPortSizes[key][i][0])||isNaN(jsonSlotConfig.viewPortSizes[key][i][0])){
-                                err['jsonSlotConfig.viewPortSizes['+key+']['+i+']'] = 'isNotTwoNumbers';
-                            }
-                            
-                        }
+                    else {
+                        warnings.push('Slot is not configured for size catagory ' + catagory);
                     }
-                    if(count ===0){
-                        err['jsonSlotConfig.viewPortSizes'] = 'hasNoElements';
-                    }
-                } else {
-                    err['viewPortSizes'] = 'notObject';
+                });
+
+                if (!isValidViewPortSizes) {
+                    errors.push('At lease one size catagory is require in viewPortSizes');
                 }
-                    
             }
-            
+        }
+
+        if (!jsonSlotConfig.interstitial) {
+            if (!type.isObj(jsonSlotConfig.viewPortSizes)) {
+                errors.push('viewPortSizes must be an object mapping size catagories to slot dimensions');
+            }
+            else {
+                isValidViewPortSizes = false;
+                util.foreachProp(jsonSlotConfig.viewPortSizes, function (catagory, sizes) {
+                    if (util.inArray(catagory, viewPortSizes)) {
+                        isValidViewPortSizes = true;
+                    }
+                    else {
+                        warnings.push('Slot viewPortSizes contains unkown size catagory ' + catagory);
+                    }
+                });
+
+                if (!isValidViewPortSizes) {
+                    errors.push('At lease one size catagory is require in viewPortSizes');
+                }
+            }
         }
     }
+    else {
+        errors.push('viewPort configuration is not defined.');
+    }
+
+    if (errors.length > 0) {
+        util.foreach(errors, log.error);
+    }
+
+    //? if (DEBUG)
+    util.foreach(warnings, log.warn);
+
+
+
+
     return {
         adUnitPath: function () {
             return jsonSlotConfig.adUnitPath;
@@ -179,7 +191,7 @@ function createSlotConfig(jsonSlotConfig) {
             return jsonSlotConfig.interstitial;
         },
         defineOnDisplay: function () {
-            return jsonSlotConfig.defineOnDisplay || false;
+            return jsonSlotConfig.defineOnDisplay;
         },
         targeting: function () {
             return jsonSlotConfig.targeting;

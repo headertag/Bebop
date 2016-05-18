@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * @module private/config
+ */
+
 var type = require('./type'),
     util = require('./util');
 
@@ -110,8 +114,8 @@ function ViewPortConfig(vpsConfig) {
         errors.push(msg);
     }
 
-    if(typeof viewCatagories !=='undefined'){
-        
+    if (typeof viewCatagories !== 'undefined') {
+
         util.foreachProp(viewCatagories, function (size) {
             if (type.isInt(vpsConfig[size])) {
                 viewCatagories[size] = vpsConfig[size];
@@ -124,7 +128,7 @@ function ViewPortConfig(vpsConfig) {
         msg = 'viewCatagories undefined';
         errors.push(msg);
     }
-    
+
     if (util.isEmptyObject(viewCatagories)) {
         msg = 'At lease one size option is required';
         errors.push(msg);

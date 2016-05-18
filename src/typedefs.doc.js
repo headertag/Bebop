@@ -27,8 +27,7 @@
  */
 
 /**
- * A key value pairs of targeting the is applyed to the underlining
- * GPTSLot
+ * Key value pairs of targeting that is applyed to the underlining {@link GPTSlot}
  *
  * @typedef {Object} TargetingMap
  */
@@ -53,11 +52,6 @@
  */
 
 /**
- * Array of two numbers representing [width, height].
- * @typedef {Array.<number>} SingleSize
- */
-
-/**
  * An array of {@link SingleSize}
  * @typedef {Array.<SingleSize>} MultipleSize
  */
@@ -66,4 +60,19 @@
  * @callback GPTCallback
  * @param {GPTHandler} self - A refernce to the GPTHandler object
  * @param {Object} tag - If headertag is enabled tag will be a reference to headertag, else it will reference {@link Googletag}
+ */
+
+/**
+ * A SizeCatagoryMap represents the sizes of a slot for each catagory
+ *
+ * @typedef {Object} SizeCatagoryMap
+ *
+ * @example
+ * {
+ *      'huge'      :   [ [970, 250] ],
+ *      'large'     :   [ [728, 90] ],
+ *      'medium'    :   [ [320, 90] ],
+ *      'small'     :   [ [300, 50] ],
+ *      'tiny'      :   [ [200, 50] ]
+ * }
  */

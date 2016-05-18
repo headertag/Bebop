@@ -2,7 +2,7 @@
 
 /**
  * The type module is not part of the Bebop public API
- * @module type
+ * @module private/type
  */
 
 /**
@@ -147,6 +147,29 @@ function isNull(test) {
     return test === null;
 }
 
+/**
+ * @param {any} test - The value to be tested
+ * @param {(string|Array.<string>)} types - A list of types to check.
+ *
+ * @return {boolean}
+ */
+function isOneOf(test, types) {
+    var testType = type(test), i, len;
+
+    types = isArray(types) ? types : [types];
+
+    if (isFunc(types.indexOf) && types.indexOf(testType) > -1) {
+        return true;
+    }
+
+    for (i = 0, len = types.length; i < len; i++) {
+        if (testType === types[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
 module.exports = {
     isArray: isArray,
     isObj: isObj,
@@ -159,5 +182,6 @@ module.exports = {
     isBool: isBool,
     isUndef: isUndef,
     isNull: isNull,
+    isOneOf: isOneOf,
     getType: type
 };
