@@ -1,12 +1,12 @@
 'use strct';
 
 /**
- * SquibSlot class test suite
+ * Slot class test suite
  * =============================================================================
  */
 
 /**
- * From src/squib.js
+ * General usage from src/squib.js
  *
  * Squib.prototype.defineSlot = function (slotConfig) {
  *     var slotCfg = validator.createSlotConfig(slotConfig),
@@ -20,83 +20,123 @@ var validate = require('./../src/validation');
 var MockGoogletag = require('./mockgoogletag');
 var Slot = require('./../src/slot');
 
-var bebopConfig = {
+var generalViewPortConfig = {
     viewPortSizes: {
-        getViewPortWidth: function () { return 500; },
-        'large'     : 500,
-        'medium'    : 0
+        getViewPortWidth: function () { return 600; },
+        'huge': 1200,
+        'large': 800,
+        'medium': 600, // Chosen viewport due to being the largest value below or equal to getViewPortWidth
+        'small': 400,
+        'tiny': 0
     }
-};
-
-var slots = [
-    {
-        'gptDivId': 'gpt-div-leaderboard',
-        'adUnitPath': '/62650033/desktop-uk',
-        'viewPortSizes': {
-            'huge'      :   [ [970, 250] ],
-            'large'     :   [ [728, 90] ],
-            'medium'    :   [ [320, 90] ],
-            'small'     :   [ [300, 50] ],
-            'tiny'      :   [ [200, 50] ]
+},
+    slotConfigGeneral = {
+        gptDivId: "dfp-ad-lazyload",
+        adUnitPath: "/62650033/desktop-uk",
+        targeting: {
+            "pos": "right3"
         },
-        'lazyLoad': false,
-        'sticky': false,
-        'targeting': {
-            'type': 'leaderboard',
-            'region': 'Subnav',
-            'pos': 'top'
+        lazyload: true,
+        defineOnDisplay: true,
+        viewPortSizes: {
+            large: [ [300, 250], [300, 252] ],
+            small: [ [300, 50], [320, 50], [300, 100] ]
         }
     },
-    {
-        'gptDivId': 'gpt-div-1',
-        'adUnitPath': '/62650033/desktop-uk',
-        'viewPortSizes': {
-            'huge'      :   [ [300, 600] ]
+    slotConfigInterstitial = {
+        gptDivId: "dfp-ad-interstitial",
+        adUnitPath: "/62650033/desktop-uk",
+        interstitial: true,
+        targeting: {
+            "pos": ['interstitial']
         },
-        'targeting': {
-            'inView': true,
-            'inContent': false,
-            'region': 'Upper 300',
-            'pos': 'right1'
-        }
-    }
-];
+        viewPortSizes: ['large']
+    };
 
 describe('Slot Test Suite', function () {
 
-    var gptHandler, mockGPT, bebopSettings;
+    var gptHandler, mockGPT, generalBebopSettings;
 
     beforeEach(function () {
         mockGPT = new MockGoogletag();
-        bebopSettings = validate.createBebopSettings(bebopConfig);
-        gptHandler = new GPTHandler(mockGPT, bebopSettings);
-
+        generalBebopSettings = validate.createBebopSettings(generalViewPortConfig);
+        gptHandler = new GPTHandler(mockGPT, generalBebopSettings);
+        spyOn(mockGPT, "defineSlot");
+        spyOn(mockGPT, "defineInterstitialSlot");
     });
 
     it('Slot instantiation with valid information should work correctly', function () {
-        var slotSettings = validate.createSlotSettings(slots[0]),
-            slot = new Slot(mochGPT, slotSettings, bebopSettings.viewPort);
+        var slotSettings = validate.createSlotSettings(slotConfigGeneral),
+            slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
         expect(slot).toBeDefined();
     });
 
-    it('Missing gpthandler should throw', function () {
-        var slotSettings = validate.createSlotSettings(slots[0]);
+    it('Missing parameter: gpthandler, should throw', function () {
+        pending("Figure out if this is a cause for concern");
+        var slotSettings = validate.createSlotSettings(slotConfigGeneral);
         expect(function () {
-            new Slot(undefined, slotSettings, bebopSettings.viewPort);
+            new Slot(undefined, slotSettings, generalBebopSettings.viewPort);
         }).toThrow();
     });
 
-    it('Missing slotConfig should throw', function () {
-        var slotSettings = validate.createSlotSettings(slots[0]);
+    it('Missing parameter: slotConfig, should throw', function () {
         expect(function () {
-            new Slot(mockGPT, undefined, bebopSettings.viewPort);
+            new Slot(mockGPT, undefined, generalBebopSettings.viewPort);
         }).toThrow();
     });
 
-    it('Missing viewPortCfg should throw', function () {
-        var slotSettings = validate.createSlotSettings(slots[0]);
+    it('Missing parameter: viewPortCfg, should throw', function () {
+        var slotSettings = validate.createSlotSettings(slotConfigGeneral);
         expect(function () {
             new Slot(mockGPT, slotSettings);
         }).toThrow();
+    });
+
+    it('GPT interstitial slot is registered when available size matches up with view port width', function () {
+        var slotConfig = {
+            gptDivId: "dfp-ad-interstitial",
+            adUnitPath: "/62650033/desktop-uk",
+            interstitial: true,
+            targeting: {
+                "pos": ['interstitial']
+            },
+            viewPortSizes: ['medium'] // Important piece for this test
+        },
+            slotSettings = validate.createSlotSettings(slotConfig),
+            slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
+        expect(slot).toBeDefined();
+        expect(mockGPT.defineInterstitialSlot).toHaveBeenCalled();
+    });
+
+    it('GPT interstitial slot is not registered when available size does not match up with view port width (1)', function () {
+        var slotConfig = {
+            gptDivId: "dfp-ad-interstitial",
+            adUnitPath: "/62650033/desktop-uk",
+            interstitial: true,
+            targeting: {
+                "pos": ['interstitial']
+            },
+            viewPortSizes: ['small'] // Important piece for this test
+        },
+            slotSettings = validate.createSlotSettings(slotConfig),
+            slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
+        expect(slot).toBeDefined();
+        expect(mockGPT.defineInterstitialSlot).not.toHaveBeenCalled();
+    });
+
+    it('GPT interstitial slot is not registered when available size does not match up with view port width (2)', function () {
+        var slotConfig = {
+            gptDivId: "dfp-ad-interstitial",
+            adUnitPath: "/62650033/desktop-uk",
+            interstitial: true,
+            targeting: {
+                "pos": ['interstitial']
+            },
+            viewPortSizes: ['large'] // Important piece for this test
+        },
+            slotSettings = validate.createSlotSettings(slotConfig),
+            slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
+        expect(slot).toBeDefined();
+        expect(mockGPT.defineInterstitialSlot).not.toHaveBeenCalled();
     });
 });

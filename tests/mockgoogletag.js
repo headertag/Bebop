@@ -8,6 +8,10 @@ MockGoogletag.prototype.defineSlot = function () {
     return this;
 };
 
+MockGoogletag.prototype.defineInterstitialSlot = function () {
+    return this;
+};
+
 MockGoogletag.prototype.pubads = function () {
     return this;
 };
