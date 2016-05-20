@@ -224,14 +224,12 @@ describe('Slot Test Suite', function () {
         // NOTE: For the following cases, the case variants where the GPT slot is defined can only be tested if we bring in a mock-GPTslot
         // Arguably, it's not worth the effort since we end up testing (more or less) GPT code.
 
-        it('getTargeting', function () {
+        // Common setup for "Targeting" tests
+        function targetingTestSetup(targetingParams) {
             var slotConfig = {
                     gptDivId: "dfp-ad-lazyload",
                     adUnitPath: "/62650033/desktop-uk",
-                    targeting: {
-                        "pos": "right3",
-                        "somethingelse": ["value", "string"]
-                    },
+                    targeting: targetingParams,
                     lazyload: true,
                     defineOnDisplay: true, // Makes GPT slot not get defined, which changes the way targeting is fetched
                     viewPortSizes: {
@@ -240,6 +238,14 @@ describe('Slot Test Suite', function () {
                 },
                 slotSettings = validate.createSlotSettings(slotConfig),
                 slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
+            return slot;
+        }
+
+        it('getTargeting', function () {
+            var slot = targetingTestSetup({
+                "pos": "right3",
+                "somethingelse": ["value", "string"]
+            });
             expect(slot.getTargeting()).toEqual({
                 "pos": "right3",
                 "somethingelse": ["value", "string"]
@@ -247,252 +253,161 @@ describe('Slot Test Suite', function () {
         });
 
         it('setTargeting: key is not a string', function () {
-            var slotConfig = {
-                    gptDivId: "dfp-ad-lazyload",
-                    adUnitPath: "/62650033/desktop-uk",
-                    targeting: {
-                        "pos": "right3"
-                    },
-                    lazyload: true,
-                    defineOnDisplay: true,
-                    viewPortSizes: {
-                         medium: [ [300, 250] ]
-                    }
-                },
-                slotSettings = validate.createSlotSettings(slotConfig),
-                slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
-            expect(function () {
-                slot.setTargeting(555, 777);
-            }).toThrow();
-            expect(function () {
-                slot.setTargeting(["key"], 777);
-            }).toThrow();
-            expect(function () {
-                slot.setTargeting({"key": true}, 777);
-            }).toThrow();
+            var slot = targetingTestSetup({
+                "pos": "right3"
+            });
+
+            expect(function () {slot.setTargeting(true, "value");}).toThrow();
+            expect(slot.getTargeting()).toEqual({
+                "pos": "right3"
+            });
+
+            expect(function () {slot.setTargeting(555, "value");}).toThrow();
+            expect(slot.getTargeting()).toEqual({
+                "pos": "right3"
+            });
+
+            expect(function () {slot.setTargeting(["key"], "value");}).toThrow();
+            expect(slot.getTargeting()).toEqual({
+                "pos": "right3"
+            });
+
+            expect(function () {slot.setTargeting({"key": true}, "value");}).toThrow();
+            expect(slot.getTargeting()).toEqual({
+                "pos": "right3"
+            });
+        });
+
+        it('setTargeting: value as a number', function () {
+            var slot = targetingTestSetup({
+                "pos": "right3"
+            });
+            expect(function () {slot.setTargeting("key", 777);}).toThrow();
+            expect(slot.getTargeting()).toEqual({
+                "pos": "right3"
+            });
+        });
+
+        it('setTargeting: value as an object', function () {
+            var slot = targetingTestSetup({
+                "pos": "right3"
+            });
+            expect(function () {slot.setTargeting("key", {"value": true});}).toThrow();
+            expect(slot.getTargeting()).toEqual({
+                "pos": "right3"
+            });
+        });
+
+        it('setTargeting: value as an array of strings, numbers', function () {
+            var slot = targetingTestSetup({
+                "pos": "right3"
+            });
+            expect(function () {slot.setTargeting("key", ["value", 777]);}).toThrow();
+            expect(slot.getTargeting()).toEqual({
+                "pos": "right3"
+            });
+        });
+
+        it('setTargeting: value as an array of strings, objects', function () {
+            var slot = targetingTestSetup({
+                "pos": "right3"
+            });
+            expect(function () {slot.setTargeting("key", ["value", {"valuethesecond": true}]);}).toThrow();
+            expect(slot.getTargeting()).toEqual({
+                "pos": "right3"
+            });
+        });
+
+        it('setTargeting: value as an array of arrays', function () {
+            var slot = targetingTestSetup({
+                "pos": "right3"
+            });
+            expect(function () {slot.setTargeting("key", ["value", ["second"]]);}).toThrow();
             expect(slot.getTargeting()).toEqual({
                 "pos": "right3"
             });
         });
 
         it('setTargeting: value as a string', function () {
-            var slotConfig = {
-                    gptDivId: "dfp-ad-lazyload",
-                    adUnitPath: "/62650033/desktop-uk",
-                    targeting: {
-                        "pos": "right3"
-                    },
-                    lazyload: true,
-                    defineOnDisplay: true,
-                    viewPortSizes: {
-                        medium: [ [300, 250] ]
-                    }
-                },
-                slotSettings = validate.createSlotSettings(slotConfig),
-                slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
-            expect(function () {
-                slot.setTargeting("key", "value");
-            }).not.toThrow();
+            var slot = targetingTestSetup({});
+
+            expect(function () {slot.setTargeting("pos", "right3");}).not.toThrow();
+            expect(slot.getTargeting()).toEqual({
+                "pos": "right3"
+            });
+
+            expect(function () {slot.setTargeting("key", "value");}).not.toThrow();
             expect(slot.getTargeting()).toEqual({
                 "pos": "right3",
                 "key": "value"
             });
         });
 
-        it('setTargeting: value as a number', function () {
-            var slotConfig = {
-                    gptDivId: "dfp-ad-lazyload",
-                    adUnitPath: "/62650033/desktop-uk",
-                    targeting: {
-                        "pos": "right3"
-                    },
-                    lazyload: true,
-                    defineOnDisplay: true,
-                    viewPortSizes: {
-                        medium: [ [300, 250] ]
-                    }
-                },
-                slotSettings = validate.createSlotSettings(slotConfig),
-                slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
-            expect(function () {
-                slot.setTargeting("key", 777);
-            }).not.toThrow();
-            expect(slot.getTargeting()).toEqual({
-                "pos": "right3",
-                "key": 777
-            });
-        });
-
-        it('setTargeting: value as an array of strings, numbers', function () {
-            var slotConfig = {
-                    gptDivId: "dfp-ad-lazyload",
-                    adUnitPath: "/62650033/desktop-uk",
-                    targeting: {
-                        "pos": "right3"
-                    },
-                    lazyload: true,
-                    defineOnDisplay: true,
-                    viewPortSizes: {
-                        medium: [ [300, 250] ]
-                    }
-                },
-                slotSettings = validate.createSlotSettings(slotConfig),
-                slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
-            expect(function () {
-                slot.setTargeting("key", ["value", 777]);
-            }).not.toThrow();
-            expect(slot.getTargeting()).toEqual({
-                "pos": "right3",
-                "key": ["value", 777]
-            });
-        });
-
-        it('setTargeting: value as an array of strings, numbers, objects (should fail)', function () {
-            var slotConfig = {
-                    gptDivId: "dfp-ad-lazyload",
-                    adUnitPath: "/62650033/desktop-uk",
-                    targeting: {
-                        "pos": "right3"
-                    },
-                    lazyload: true,
-                    defineOnDisplay: true,
-                    viewPortSizes: {
-                        medium: [ [300, 250] ]
-                    }
-                },
-                slotSettings = validate.createSlotSettings(slotConfig),
-                slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
-            expect(function () {
-                slot.setTargeting("key", ["value", 777, {"valuethesecond": true}]);
-            }).toThrow();
-            expect(slot.getTargeting()).toEqual({
+        it('setTargeting: value as an array of strings', function () {
+            var slot = targetingTestSetup({
                 "pos": "right3"
             });
-        });
-
-        it('setTargeting: value as an object (should fail)', function () {
-            var slotConfig = {
-                    gptDivId: "dfp-ad-lazyload",
-                    adUnitPath: "/62650033/desktop-uk",
-                    targeting: {
-                        "pos": "right3"
-                    },
-                    lazyload: true,
-                    defineOnDisplay: true,
-                    viewPortSizes: {
-                        medium: [ [300, 250] ]
-                    }
-                },
-                slotSettings = validate.createSlotSettings(slotConfig),
-                slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
-            expect(function () {
-                slot.setTargeting("key", {"value": true});
-            }).toThrow();
+            expect(function () {slot.setTargeting("key", ["value", "second"]);}).not.toThrow();
             expect(slot.getTargeting()).toEqual({
-                "pos": "right3"
+                "pos": "right3",
+                "key": ["value", "second"]
             });
         });
 
         it('setTargeting: value with old key (replace)', function () {
-            var slotConfig = {
-                    gptDivId: "dfp-ad-lazyload",
-                    adUnitPath: "/62650033/desktop-uk",
-                    targeting: {
-                        "pos": "right3"
-                    },
-                    lazyload: true,
-                    defineOnDisplay: true,
-                    viewPortSizes: {
-                        medium: [ [300, 250] ]
-                    }
-                },
-                slotSettings = validate.createSlotSettings(slotConfig),
-                slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
-            expect(function () {
-                slot.setTargeting("pos", 777);
-            }).not.toThrow();
+            var slot = targetingTestSetup({
+                "pos": "right3"
+            });
+            expect(function () {slot.setTargeting("pos", "newvalue");}).not.toThrow();
             expect(slot.getTargeting()).toEqual({
-                "pos": 777
+                "pos": "newvalue"
             });
         });
 
-        it('clearTargeting: key is incorrect (should fail)', function () {
-            var slotConfig = {
-                    gptDivId: "dfp-ad-lazyload",
-                    adUnitPath: "/62650033/desktop-uk",
-                    targeting: {
-                        "pos": "right3"
-                    },
-                    lazyload: true,
-                    defineOnDisplay: true,
-                    viewPortSizes: {
-                        medium: [ [300, 250] ]
-                    }
-                },
-                slotSettings = validate.createSlotSettings(slotConfig),
-                slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
-            expect(function () {
-                slot.clearTargeting(777);
-            }).toThrow();
-            expect(function () {
-                slot.clearTargeting(["pos"]);
-            }).toThrow();
-            expect(function () {
-                slot.clearTargeting({"pos": true});
-            }).toThrow();
+        it('clearTargeting: key is wrong type', function () {
+            var slot = targetingTestSetup({
+                "pos": "right3"
+            });
+
+            expect(function () {slot.clearTargeting(777);}).toThrow();
+            expect(slot.getTargeting()).toEqual({
+                "pos": "right3"
+            });
+
+            expect(function () {slot.clearTargeting(["pos"]);}).toThrow();
+            expect(slot.getTargeting()).toEqual({
+                "pos": "right3"
+            });
+
+            expect(function () {slot.clearTargeting({"pos": true});}).toThrow();
             expect(slot.getTargeting()).toEqual({
                 "pos": "right3"
             });
         });
 
         it('clearTargeting: key does not exist', function () {
-            var slotConfig = {
-                    gptDivId: "dfp-ad-lazyload",
-                    adUnitPath: "/62650033/desktop-uk",
-                    targeting: {
-                        "pos": "right3"
-                    },
-                    lazyload: true,
-                    defineOnDisplay: true,
-                    viewPortSizes: {
-                        medium: [ [300, 250] ]
-                    }
-                },
-                slotSettings = validate.createSlotSettings(slotConfig),
-                slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
-            expect(function () {
-                slot.clearTargeting("key");
-            }).not.toThrow();
+            var slot = targetingTestSetup({
+                "pos": "right3"
+            });
+
+            expect(function () {slot.clearTargeting("key");}).not.toThrow();
             expect(slot.getTargeting()).toEqual({
                 "pos": "right3"
             });
         });
 
         it('clearTargeting: key exists', function () {
-            var slotConfig = {
-                    gptDivId: "dfp-ad-lazyload",
-                    adUnitPath: "/62650033/desktop-uk",
-                    targeting: {
-                        "key": "777",
-                        "pos": "right3"
-                    },
-                    lazyload: true,
-                    defineOnDisplay: true,
-                    viewPortSizes: {
-                        medium: [ [300, 250] ]
-                    }
-                },
-                slotSettings = validate.createSlotSettings(slotConfig),
-                slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
-            expect(function () {
-                slot.clearTargeting("key");
-            }).not.toThrow();
+            var slot = targetingTestSetup({
+                "key": ["777", "888"],
+                "pos": "right3"
+            });
+
+            expect(function () {slot.clearTargeting("key");}).not.toThrow();
             expect(slot.getTargeting()).toEqual({
                 "pos": "right3"
             });
-            expect(function () {
-                slot.clearTargeting("pos");
-            }).not.toThrow();
+
+            expect(function () {slot.clearTargeting("pos");}).not.toThrow();
             expect(slot.getTargeting()).toEqual({});
         });
 
