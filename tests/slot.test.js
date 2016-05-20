@@ -96,18 +96,18 @@ describe('Slot Test Suite', function () {
 
         it('GPT slot is defined when available size matches up with view port width', function () {
             var slotConfig = {
-                gptDivId: "dfp-ad-lazyload",
-                adUnitPath: "/62650033/desktop-uk",
-                targeting: {
-                    "pos": "right3"
+                    gptDivId: "dfp-ad-lazyload",
+                    adUnitPath: "/62650033/desktop-uk",
+                    targeting: {
+                        "pos": "right3"
+                    },
+                    lazyload: true,
+                    defineOnDisplay: false,
+                    viewPortSizes: {
+                        medium: [ [300, 250], [300, 252] ], // Important piece for this test
+                        small: [ [300, 50], [320, 50], [300, 100] ]
+                    }
                 },
-                lazyload: true,
-                defineOnDisplay: false,
-                viewPortSizes: {
-                    medium: [ [300, 250], [300, 252] ], // Important piece for this test
-                    small: [ [300, 50], [320, 50], [300, 100] ]
-                }
-            },
                 slotSettings = validate.createSlotSettings(slotConfig),
                 slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
             expect(slot).toBeDefined();

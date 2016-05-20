@@ -10,6 +10,7 @@ var settings = require('./settings'),
     GPTSettings = settings.GPTSettings,
     ViewPortSettings = settings.ViewPortSettings,
     BebopSettings = settings.BebopSettings,
+    SlotSettings = settings.SlotSettings,
 // Modules
     type = require('./type'),
     util = require('./util'),
@@ -21,32 +22,32 @@ var settings = require('./settings'),
  * @throws If the {@link BebopConfig} object is not valid.
  */
 function createBebopSettings(bebopConfig) {
-    var ht = bebopConfig.headertag,
-        gpt = bebopConfig.gpt,
-        vps = bebopConfig.viewPortSizes,
-        htCfgObj,
-        gptCfgObj,
-        vpCfgObj,
+    var htConfig = bebopConfig.headertag,
+        gptConfig = bebopConfig.gpt,
+        vpConfig = bebopConfig.viewPortSizes,
+        htSettings,
+        gptSettings,
+        vpSettigns,
         bebopSettings,
         errors;
 
-    if (type.isObj(ht)) {
-        htCfgObj = new HeadertagSettings(ht.enabled, ht.reference);
+    if (type.isObj(htConfig)) {
+        htSettings = new HeadertagSettings(htConfig.enabled, htConfig.reference);
     }
     else {
-        htCfgObj = new HeadertagSettings();
+        htSettings = new HeadertagSettings();
     }
 
-    if (type.isObj(gpt)) {
-        gptCfgObj = new GPTSettings(gpt.disableInitalLoad, gpt.loadTag);
+    if (type.isObj(gptConfig)) {
+        gptSettings = new GPTSettings(gptConfig.disableInitalLoad, gptConfig.loadTag);
     }
     else {
-        gptCfgObj = new GPTSettings();
+        gptSettings = new GPTSettings();
     }
 
-    vpCfgObj = new ViewPortSettings(vps);
+    vpSettigns = new ViewPortSettings(vpConfig);
 
-    bebopSettings = new BebopSettings(htCfgObj, gptCfgObj, vpCfgObj);
+    bebopSettings = new BebopSettings(htSettings, gptSettings, vpSettigns);
 
     errors = bebopSettings.errors();
     if (errors.length > 0) {
@@ -64,136 +65,18 @@ function createBebopSettings(bebopConfig) {
  */
 function createSlotSettings(slotConfig) {
 
-    var viewPortSizes = ['huge', 'large', 'medium', 'small', 'tiny'],
-        isValidViewPortSizes = false,
-        errors = [],
-        warnings = [];
-
-    if (!type.isObj(slotConfig)) {
-        errors.push('Slot Configuration is undefined or invalid');
-    }
-
-    if (!type.isStr(slotConfig.adUnitPath) || !util.isValidAdUnitPath(slotConfig.adUnitPath)) {
-        errors.push('Ad Unit Path is not defined or is invalid');
-    }
-
-    if (!type.isStr(slotConfig.gptDivId) || slotConfig.gptDivId === '') {
-        errors.push('GPT Div Id is not defined or is invalid');
-    }
-
-    if (type.isObj(slotConfig.targeting)) {
-        util.foreachProp(slotConfig.targeting, function (key, value) {
-            util.validateTargetingKey(key, errors);
-            util.validateTargetingValue(value, errors);
-        });
-    }
-    else {
-        warnings.push('No targeting parameters were passed with the slot definition object');
-    }
-
-    if (!type.isBool(slotConfig.lazyload)) {
-        slotConfig.lazyload = false;
-    }
-    else {
-        warnings.push('No lazyload parameter was passed, using default false');
-    }
-
-    if (!type.isBool(slotConfig.interstitial)) {
-        slotConfig.interstitial = false;
-    }
-    else {
-        warnings.push('No interstitial parameter was passed, using default false');
-    }
-
-    if (!type.isBool(slotConfig.defineOnDisplay)) {
-        slotConfig.defineOnDisplay = false;
-    }
-    else {
-        warnings.push('No defineOnDisplay parameter was passed, using default false');
-    }
-
-    if (!type.isUndef(slotConfig.viewPortSizes)) {
-
-        if (slotConfig.interstitial) {
-            if (!type.isArray(slotConfig.viewPortSizes)) {
-                errors.push('viewPortSizes must be an array of catagories for interstitial slots');
-            }
-            else {
-                isValidViewPortSizes = false;
-                util.foreach(viewPortSizes, function (catagory) {
-                    if (util.inArray(catagory, slotConfig.viewPortSizes)) {
-                        isValidViewPortSizes = true;
-                    }
-                    else {
-                        warnings.push('Slot is not configured for size catagory ' + catagory);
-                    }
-                });
-
-                if (!isValidViewPortSizes) {
-                    errors.push('At lease one size catagory is require in viewPortSizes');
-                }
-            }
-        }
-
-        if (!slotConfig.interstitial) {
-            if (!type.isObj(slotConfig.viewPortSizes)) {
-                errors.push('viewPortSizes must be an object mapping size catagories to slot dimensions');
-            }
-            else {
-                isValidViewPortSizes = false;
-                util.foreachProp(slotConfig.viewPortSizes, function (catagory, sizes) {
-                    if (util.inArray(catagory, viewPortSizes)) {
-                        isValidViewPortSizes = true;
-                    }
-                    else {
-                        warnings.push('Slot viewPortSizes contains unkown size catagory ' + catagory);
-                    }
-                });
-
-                if (!isValidViewPortSizes) {
-                    errors.push('At lease one size catagory is require in viewPortSizes');
-                }
-            }
-        }
-    }
-    else {
-        errors.push('viewPort configuration is not defined.');
-    }
+    var slotSettings = new SlotSettings(slotConfig),
+        errors = slotSettings.errors();
 
     //? if (DEBUG)
-    util.foreach(warnings, log.warn);
+    util.foreach(slotSettings.warnings(), log.warn);
 
     if (errors.length > 0) {
         util.foreach(errors, log.error);
         util.invalidStateError(errors);
     }
 
-    return {
-        adUnitPath: function () {
-            return slotConfig.adUnitPath;
-        },
-        viewPortSizes: function (catagory) {
-            return slotConfig.viewPortSizes[catagory] || [];
-        },
-        sizeCatagories: function () {
-            return slotConfig.viewPortSizes;
-        },
-        gptDivId: function () {
-            return slotConfig.gptDivId;
-        },
-        lazyload: function () {
-            return slotConfig.lazyload;
-        },
-        interstitial: function () {
-            return slotConfig.interstitial;
-        },
-        defineOnDisplay: function () {
-            return slotConfig.defineOnDisplay;
-        },
-        targeting: function () {
-            return slotConfig.targeting;
-        }
-    };
+    return slotSettings;
 }
 
 module.exports = {

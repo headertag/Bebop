@@ -12,6 +12,8 @@ final
 .*
 !.gitignore
 !.jscsrc
+!.build.config.js
+
 *~
 .*.swp
 .*.swo

@@ -10,6 +10,9 @@ var batch = require('gulp-batch');
 var metaScript = require('gulp-metascript');
 var del = require('del');
 
+// Build Configuration
+var buildConfig = require('./.build.config');
+
 // Web Server
 var webserver = require('gulp-webserver');
 
@@ -20,71 +23,32 @@ var argv = require('yargs').argv;
 var jshint = require('gulp-jshint');
 var jscs = require('gulp-jscs');
 var lintReporter = require('jshint-stylish').reporter;
+var browserCompatibility = require('gulp-browser-compat');
 
 // Test Dependencies
 var Jasmine = require('jasmine');
 
 // Helpers
-var buildDir = './final/';
-var buildName = 'bebop';
-var entryPoint = './src/main.js';
-
-var uglifyOptions = {
-    warnings: true,
-    mangle: true,
-    output: {
-        inline_script: true,
-        comments: false,
-        semicolons: true
-    },
-    compress: {
-        sequences: true, // join consecutive statemets with the "comma operator"
-        properties: true, // optimize property access: a["foo"]  a.foo
-        dead_code: true, // discard unreachable code
-        drop_debugger: true, // discard "debugger" statements
-        unsafe: false, // some unsafe optimizations (see below)
-        conditionals: true, // optimize if-s and conditional expressions
-        comparisons: true, // optimize comparisons
-        evaluate: true, // evaluate constant expressions
-        booleans: true, // optimize boolean expressions
-        loops: true, // optimize loops
-        unused: true, // drop unused variables/functions
-        hoist_funs: true, // hoist function declarations
-        hoist_vars: false, // hoist variable declarations
-        if_return: true, // optimize if-s followed by return/continue
-        join_vars: true, // join var declarations
-        cascade: true, // try to cascade `right` into `left` in sequences
-        side_effects: true, // drop side-effect-free statements
-        warnings: true // warn about potentially dangerous optimizations/code
-    }
-};
-
 function build(options) {
-    return gulp.src(entryPoint)
+    return gulp.src(buildConfig.entryPoint)
         .pipe(browserify(options.browserify))
         .pipe(metaScript(options.metaScript))
-        .pipe(rename(buildName + '.js'))
-        .pipe(gulp.dest(buildDir))
-        .pipe(uglify(uglifyOptions))
-        .pipe(rename(buildName + '.min.js'))
-        .pipe(gulp.dest(buildDir));
+        .pipe(rename(buildConfig.buildName + '.js'))
+        .pipe(gulp.dest(buildConfig.buildDir))
+        .pipe(uglify(buildConfig.uglifyOptions))
+        .pipe(rename(buildConfig.buildName + '.min.js'))
+        .pipe(gulp.dest(buildConfig.buildDir));
 }
 
 // Tasks
 gulp.task('clean', function () {
-    var stream = del([buildDir]);
+    var stream = del([buildConfig.buildDir]);
     return stream;
 });
 
 gulp.task('lint', function () {
     return gulp.src(['./src/**/*.js'])
-        .pipe(jshint({
-            node: true,
-            curly: true,
-            eqeqeq: true,
-            freeze: true,
-            futurehostile: true
-        }))
+        .pipe(jshint(buildConfig.jshint))
         .pipe(jshint.reporter(lintReporter))
         .pipe(jscs())
         .pipe(jscs.reporter());
@@ -101,34 +65,23 @@ gulp.task('test', function () {
     jasmine.execute();
 });
 
+
+gulp.task('compat', ['prod-build'], function () {
+    return gulp.src(buildConfig.buildDir + buildConfig.buildName + '.js')
+        .pipe(browserCompatibility(gulp.dest, buildConfig.compatConfig));
+});
+
+
 gulp.task('build', ['clean'], function () {
-    return build({
-        browserify: {
-            insetGlobals: true,
-            debug: false
-        },
-        metaScript: {
-            ASSERT_TYPE: true,
-            DEBUG: true
-        }
-    });
+    return build(buildConfig.devBuild);
 });
 
 gulp.task('prod-build', ['clean'], function () {
-    return build({
-        browserify: {
-            insetGlobals: true,
-            debug: false
-        },
-        metaScript: {
-            ASSERT_TYPE: false,
-            DEBUG: false
-        }
-    });
+    return build(buildConfig.prodBuild);
 });
 
 gulp.task('watch', function () {
-    watch('./src/**/*.js', batch(function (events, done) {
+    watch(buildConfig.srcDir, batch(function (events, done) {
         gulp.start('build', done);
     }));
 });

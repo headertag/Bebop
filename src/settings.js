@@ -264,15 +264,206 @@ function BebopSettings(headertagSettings, gptSettings, viewPortSettings) {
  *
  * @class
  *
+ * @param {SlotConfig} slotConfig
  *
  */
 function SlotSettings(slotConfig) {
 
+    var viewPortSizes = ['huge', 'large', 'medium', 'small', 'tiny'],
+        isValidViewPortSizes = false,
+        errors = [],
+        warnings = [];
+
+    if (!type.isObj(slotConfig)) {
+        errors.push('Slot Configuration is undefined or invalid');
+    }
+
+    if (!type.isStr(slotConfig.adUnitPath) || !util.isValidAdUnitPath(slotConfig.adUnitPath)) {
+        errors.push('Ad Unit Path is not defined or is invalid');
+    }
+
+    if (!type.isStr(slotConfig.gptDivId) || slotConfig.gptDivId === '') {
+        errors.push('GPT Div Id is not defined or is invalid');
+    }
+
+    if (type.isObj(slotConfig.targeting)) {
+        util.foreachProp(slotConfig.targeting, function (key, value) {
+            util.validateTargetingKey(key, errors);
+            util.validateTargetingValue(value, errors);
+        });
+    }
+    else {
+        warnings.push('No targeting parameters were passed with the SlotConfig object');
+    }
+
+    if (!type.isBool(slotConfig.lazyload)) {
+        slotConfig.lazyload = false;
+    }
+    else {
+        warnings.push('No lazyload parameter was passed, using default false');
+    }
+
+    if (!type.isBool(slotConfig.interstitial)) {
+        slotConfig.interstitial = false;
+    }
+    else {
+        warnings.push('No interstitial parameter was passed, using default false');
+    }
+
+    if (!type.isBool(slotConfig.defineOnDisplay)) {
+        slotConfig.defineOnDisplay = false;
+    }
+    else {
+        warnings.push('No defineOnDisplay parameter was passed, using default false');
+    }
+
+    if (!type.isUndef(slotConfig.viewPortSizes)) {
+
+        if (slotConfig.interstitial) {
+            if (!type.isArray(slotConfig.viewPortSizes)) {
+                errors.push('viewPortSizes must be an array of catagories for interstitial slots');
+            }
+            else {
+                isValidViewPortSizes = false;
+                util.foreach(viewPortSizes, function (catagory) {
+                    if (util.inArray(catagory, slotConfig.viewPortSizes)) {
+                        isValidViewPortSizes = true;
+                    }
+                    else {
+                        warnings.push('Slot is not configured for size catagory ' + catagory);
+                    }
+                });
+
+                if (!isValidViewPortSizes) {
+                    errors.push('At lease one size catagory is require in viewPortSizes');
+                }
+            }
+        }
+
+        if (!slotConfig.interstitial) {
+            if (!type.isObj(slotConfig.viewPortSizes)) {
+                errors.push('viewPortSizes must be an object mapping size catagories to slot dimensions');
+            }
+            else {
+                isValidViewPortSizes = false;
+                util.foreachProp(slotConfig.viewPortSizes, function (catagory, sizes) {
+
+                    if (util.inArray(catagory, viewPortSizes)) {
+                        isValidViewPortSizes = true;
+                    }
+                    else {
+                        warnings.push('Slot viewPortSizes contains unkown size catagory ' + catagory);
+                    }
+
+                    if (util.isMultiSizeArray(sizes) || util.isSingleSizeArray(sizes) ) {
+
+                    }
+                    else {
+                        errors.push('Slot sizes is not a SingleSize or MultiSize array');
+                    }
+                });
+
+                if (!isValidViewPortSizes) {
+                    errors.push('At lease one size catagory is require in viewPortSizes');
+                }
+            }
+        }
+    }
+    else {
+        errors.push('viewPort configuration is not defined.');
+    }
+
+    /**
+     * @return {Array.<string>} An array of errors or a 0 length array when no errors have occured.
+     */
+    this.errors = function () {
+        return errors;
+    };
+
+    /**
+     * @return {Array.<string>} An array of warnings or a 0 length array when no warnings have occured.
+     */
+    this.warnings = function () {
+        return warnings;
+    };
+
+    /**
+     * @return {AdUnitPath}
+     * @throws If the {@link SlotConfig} object is invalid.
+     */
+    this.adUnitPath = function adUnitPath() {
+        errorCheck(errors);
+        return slotConfig.adUnitPath;
+    };
+
+    /**
+     * @return {(SingleSize|MultiSize)} The slot sizes from `catagory` {@link SizeCatagoryMap}
+     * @throws If the {@link SlotConfig} object is invalid.
+     */
+    this.viewPortSizes = function viewPortSizes(catagory) {
+        errorCheck(errors);
+        return slotConfig.viewPortSizes[catagory] || [];
+    };
+
+    /**
+     * @return {SizeCatagoryMap}
+     * @throws If the {@link SlotConfig} object is invalid.
+     */
+    this.sizeCatagories = function sizeCatagories() {
+        errorCheck(errors);
+        return slotConfig.viewPortSizes;
+    };
+
+    /**
+     * @return {GPTDivId}
+     * @throws If the {@link SlotConfig} object is invalid.
+     */
+    this.gptDivId = function gptDivId() {
+        errorCheck(errors);
+        return slotConfig.gptDivId;
+    };
+
+    /**
+     * @return {boolean}
+     * @throws If the {@link SlotConfig} object is invalid.
+     */
+    this.lazyload = function lazyload() {
+        errorCheck(errors);
+        return slotConfig.lazyload;
+    };
+
+    /**
+     * @return {boolean}
+     * @throws If the {@link SlotConfig} object is invalid.
+     */
+    this.interstitial = function interstitial() {
+        errorCheck(errors);
+        return slotConfig.interstitial;
+    };
+
+    /**
+     * @return {boolean}
+     * @throws If the {@link SlotConfig} object is invalid.
+     */
+    this.defineOnDisplay = function defineOnDisplay() {
+        errorCheck(errors);
+        return slotConfig.defineOnDisplay;
+    };
+
+    /**
+     * @return {TatgetingMap}
+     * @throws If the {@link SlotConfig} object is invalid.
+     */
+    this.targeting = function targeting() {
+        errorCheck(errors);
+        return slotConfig.targeting;
+    };
 }
 
 module.exports = {
     HeadertagSettings: HeadertagSettings,
     GPTSettings: GPTSettings,
     ViewPortSettings: ViewPortSettings,
-    BebopSettings: BebopSettings
+    BebopSettings: BebopSettings,
+    SlotSettings: SlotSettings
 };

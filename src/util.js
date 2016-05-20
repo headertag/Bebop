@@ -185,7 +185,11 @@ function isValidAdUnitPath(adUnitPath) {
 }
 
 function validateTargetingKey(key, errors) {
-    var keyStartChar = new RegExp(/^([0-9]).+/),
+    // I can't find any documentation in support of these constraints
+    // for now I will just go by the documentation found here:
+    // https://developers.google.com/doubleclick-gpt/reference#googletag.Slot_setTargeting
+
+    /*var keyStartChar = new RegExp(/^([0-9]).+/),
         keyPatValChar = new RegExp(/("|'|=|!|\+|#|\*|~|;|\^|\(|\)|<|>|\[|\]|,|&| )/),
         isValid = true;
 
@@ -204,26 +208,78 @@ function validateTargetingKey(key, errors) {
         isValid = false;
     }
 
-    return isValid;
+    return isValid;*/
+
+    if (!type.isStr(key)) {
+        errors.push('targeting key ' + key + ' is not a string');
+    }
 }
 
 function validateTargetingValue(value, errors) {
-    var valPat = new RegExp(/("|'|=|!|\+|#|\*|~|;|\^|\(|\)|<|>|\[|\]|&)/),
+    // I can't find any documentation in support of these constraints
+    // for now I will just go by the documentation found here:
+    // https://developers.google.com/doubleclick-gpt/reference#googletag.Slot_setTargeting
+
+    /*
+    var valPat = new RegExp(/("|'|=|!|\+|#|\*|~|;|\^|\(|\)|<|>|\[|\]|&)/);
+
+
+    if (!type.isOneOf(value, ['string', 'array'])) {
+        value = String(value);
+    }
+
+    value = type.isArray(value) ? value : [value];
+
+    foreach(value, function (v) {
+        if (valPat.test(v)) {
+            errors.push('Invalid targeting value, value has invalid characters');
+        }
+
+        if (v.length > 40) {
+            errors.push('Invalid targeting value, value exceeds 40 characters');
+        }
+    });
+    */
+
+    var msg = 'value: ' + value + ' is not a string or an array of strings',
         isValid;
 
-    if (!type.isOneOf(value, ['string', 'array', 'number'])) {
-        errors.push('Invalid targeting value, value is not a number, string or array');
-        isValid = false;
-        return isValid;
+    if (!type.isOneOf(value, ['string', 'array'])) {
+        errors.push(msg);
+        return;
     }
 
-    if (valPat.test(value)) {
-        errors.push('Invalid targeting value, value has invalid characters');
-    }
+    if (type.isArray(value)) {
+        isValid = foreach(value, function (target) {
+            if (!type.isStr(target)) {
+                return false;
+            }
+        });
 
-    if (value.length > 40) {
-        errors.push('Invalid targeting value, value exceeds 40 characters');
+        if (isValid === false) {
+            errors.push(msg);
+        }
     }
+}
+
+function isSingleSizeArray(test) {
+    if (!type.isArray(test) || test.length !== 2) {
+        return false;
+    }
+    return type.isInt(test[0]) && type.isInt(test[1]);
+}
+
+function isMultiSizeArray(test) {
+    var isValid;
+    if (!type.isArray(test)) {
+        return false;
+    }
+    isValid = foreach(test, function (element) {
+        if (!isSingleSizeArray(element)) {
+            return false;
+        }
+    });
+    return isValid !== false;
 }
 
 module.exports = {
@@ -235,6 +291,8 @@ module.exports = {
     inArray: inArray,
     invalidStateError: invalidStateError,
     isValidAdUnitPath: isValidAdUnitPath,
+    isSingleSizeArray: isSingleSizeArray,
+    isMultiSizeArray: isMultiSizeArray,
     validateTargetingKey: validateTargetingKey,
     validateTargetingValue: validateTargetingValue
 };

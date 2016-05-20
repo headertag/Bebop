@@ -25,5 +25,8 @@
     "jshint": "^2.9.2",
     "jshint-stylish": "^2.2.0",
     "yargs": "^4.7.1"
+  },
+  "dependencies": {
+    "gulp-browser-compat": "git+ssh://git@gitlab.internal.casalemedia.com:michael.robb/gulp-browser-compat.git"
   }
 }
