@@ -185,73 +185,23 @@ function isValidAdUnitPath(adUnitPath) {
 }
 
 function validateTargetingKey(key, errors) {
-    // I can't find any documentation in support of these constraints
-    // for now I will just go by the documentation found here:
-    // https://developers.google.com/doubleclick-gpt/reference#googletag.Slot_setTargeting
-
-    /*var keyStartChar = new RegExp(/^([0-9]).+/),
-        keyPatValChar = new RegExp(/("|'|=|!|\+|#|\*|~|;|\^|\(|\)|<|>|\[|\]|,|&| )/),
-        isValid = true;
-
-    if (keyStartChar.test(key)) {
-        errors.push('targeting key ' + key + ' starts with a number');
-        isValid = false;
-    }
-
-    if (keyPatValChar.test(key)) {
-        errors.push('targeting key ' + key + ' contains invalid characters');
-        isValid = false;
-    }
-
-    if (key.length > 20) {
-        errors.push('targeting key ' + key + ' exceeds max key length of 20 characters');
-        isValid = false;
-    }
-
-    return isValid;*/
-
-    if (!type.isStr(key)) {
+    if (!type.isStr(key) && !type.isInt(key)) {
         errors.push('targeting key ' + key + ' is not a string');
     }
 }
 
 function validateTargetingValue(value, errors) {
-    // I can't find any documentation in support of these constraints
-    // for now I will just go by the documentation found here:
-    // https://developers.google.com/doubleclick-gpt/reference#googletag.Slot_setTargeting
-
-    /*
-    var valPat = new RegExp(/("|'|=|!|\+|#|\*|~|;|\^|\(|\)|<|>|\[|\]|&)/);
-
-
-    if (!type.isOneOf(value, ['string', 'array'])) {
-        value = String(value);
-    }
-
-    value = type.isArray(value) ? value : [value];
-
-    foreach(value, function (v) {
-        if (valPat.test(v)) {
-            errors.push('Invalid targeting value, value has invalid characters');
-        }
-
-        if (v.length > 40) {
-            errors.push('Invalid targeting value, value exceeds 40 characters');
-        }
-    });
-    */
-
     var msg = 'value: ' + value + ' is not a string or an array of strings',
         isValid;
 
-    if (!type.isOneOf(value, ['string', 'array'])) {
+    if (!type.isOneOf(value, ['string', 'number', 'array'])) {
         errors.push(msg);
         return;
     }
 
     if (type.isArray(value)) {
         isValid = foreach(value, function (target) {
-            if (!type.isStr(target)) {
+            if (!type.isOneOf(target, ['string', 'number'])) {
                 return false;
             }
         });

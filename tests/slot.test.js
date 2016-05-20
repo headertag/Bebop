@@ -21,7 +21,7 @@ var MockGoogletag = require('./mockgoogletag');
 var Slot = require('./../src/slot');
 
 var generalViewPortConfig = {
-    viewPortSizes: {
+    viewPort: {
         getViewPortWidth: function () { return 600; },
         'huge': 1200,
         'large': 800,
@@ -282,9 +282,10 @@ describe('Slot Test Suite', function () {
             var slot = targetingTestSetup({
                 "pos": "right3"
             });
-            expect(function () {slot.setTargeting("key", 777);}).toThrow();
+            expect(function () {slot.setTargeting("key", 777);}).not.toThrow();
             expect(slot.getTargeting()).toEqual({
-                "pos": "right3"
+                "pos": "right3",
+                "key": 777
             });
         });
 
@@ -302,9 +303,10 @@ describe('Slot Test Suite', function () {
             var slot = targetingTestSetup({
                 "pos": "right3"
             });
-            expect(function () {slot.setTargeting("key", ["value", 777]);}).toThrow();
+            expect(function () {slot.setTargeting("key", ["value", 777]);}).not.toThrow();
             expect(slot.getTargeting()).toEqual({
-                "pos": "right3"
+                "pos": "right3",
+                "key": ["value", 777]
             });
         });
 

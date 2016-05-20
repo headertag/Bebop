@@ -229,7 +229,7 @@ GPTHandler.loadGoogletag = function (window) {
         node;
     gTag.async = true;
     gTag.type = 'text/javascript';
-    gTag.src = window.document.location.protocol + src;
+    gTag.src = src;
     node = window.document.getElementsByTagName("script")[0];
     node.parentNode.insertBefore(gTag, node);
 };

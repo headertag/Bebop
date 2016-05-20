@@ -10,11 +10,7 @@ var Slot = require('./slot'),
     validator = require('./validation'),
     log = require('./log').log,
     type = require('./type'),
-    util = require('./util'),
-// PRIVATE FIELDS
-    settings,
-    slots,
-    gpt;
+    util = require('./util');
 
 /**
  * This Constructor is not part of the public Bebop API.
@@ -32,9 +28,17 @@ var Slot = require('./slot'),
  * });
  */
 function Bebop(gptHandler, bebopSettings) {
-    settings = bebopSettings;
-    gpt = gptHandler;
-    slots = {};
+
+    /**
+     * @property {Object} private
+     *
+     * The private object is private and can change at any time.
+     * It should not be referenced outside of the class definition.
+     */
+    this.private = {};
+    this.private.settings = bebopSettings;
+    this.private.gpt = gptHandler;
+    this.private.slots = {};
 }
 
 /**
@@ -58,10 +62,10 @@ Bebop.prototype.defineSlots = function (slotsConfig) {
  * @throws if slotConfig is not a valid {@link SlotConfig} object
  */
 Bebop.prototype.defineSlot = function (slotConfig) {
-    var slotCfg = validator.createSlotSettings(slotConfig),
-        squibSlot = new Slot(gpt, slotCfg, settings.viewPort);
-    slots[squibSlot.getGPTDivId()] = squibSlot;
-    return squibSlot;
+    var slotSettings = validator.createSlotSettings(slotConfig),
+        slot = new Slot(this.private.gpt, slotSettings, this.private.settings.viewPort);
+    this.private.slots[slot.getGPTDivId()] = slot;
+    return slot;
 };
 
 /**
@@ -82,17 +86,17 @@ Bebop.prototype.refresh = function (slots, options) {
     }
 
     // using the q here ensures that the slots are defined
-    gpt.q(function () {
+    this.private.gpt.q(function (gptHandler) {
         var gptSlots;
         if (type.isNull(slots)) {
-            gpt.refresh(null, options);
+            gptHandler.refresh(null, options);
         }
         else {
             gptSlots = [];
             util.foreach(slots, function (slot) {
                 gptSlots.push(slot.getGPTSlot());
             });
-            gpt.refresh(gptSlots, options);
+            gptHandler.refresh(gptSlots, options);
         }
     });
 };
@@ -109,7 +113,7 @@ Bebop.prototype.display = function (slots) {
     slots = type.isArray(slots) ? slots : [slots];
 
     // using the q here ensures that the slots are defined
-    gpt.q(function () {
+    this.private.gpt.q(function (gptHander) {
         util.foreach(slots, function (slot) {
 
             if (!slot.isActive()) {
@@ -123,7 +127,7 @@ Bebop.prototype.display = function (slots) {
                 slot.defineSlot();
             }
 
-            gpt.display(slot.getGPTDivId());
+            gptHander.display(slot.getGPTDivId());
         });
     });
 };
@@ -135,7 +139,14 @@ Bebop.prototype.display = function (slots) {
  */
 Bebop.prototype.setPageTargets = function (pageTargets) {
     util.enforceType(pageTargets, 'object');
-    util.foreachProp(pageTargets, gpt.setPageTargeting, gpt);
+    util.foreachProp(pageTargets, this.private.gpt.setPageTargeting, this.private.gpt);
+};
+
+/**
+ * @return {Array.<Slot>} All slots registered with Bebop.
+ */
+Bebop.prototype.getSlots = function () {
+    return this.private.slots;
 };
 
 module.exports = Bebop;

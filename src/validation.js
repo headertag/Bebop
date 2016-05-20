@@ -24,7 +24,7 @@ var settings = require('./settings'),
 function createBebopSettings(bebopConfig) {
     var htConfig = bebopConfig.headertag,
         gptConfig = bebopConfig.gpt,
-        vpConfig = bebopConfig.viewPortSizes,
+        vpConfig = bebopConfig.viewPort,
         htSettings,
         gptSettings,
         vpSettigns,

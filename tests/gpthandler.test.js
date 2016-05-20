@@ -9,7 +9,7 @@ var validate = require('./../src/validation');
 var MockGoogletag = require('./mockgoogletag');
 
 var bebopConfig = {
-    viewPortSizes: {
+    viewPort: {
         getViewPortWidth: function () { return 500; },
         'large'     : 500,
         'medium'    : 0

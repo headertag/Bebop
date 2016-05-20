@@ -11,7 +11,6 @@ var util = require('./util'),
 /**
  * This Constructor is not part of the public Bebop API.
  * To create a new Slot Object see {@link Bebop#defineSlot} or {@link Bebop#defineSlots}
- * The Slot#private object is private and can change at any time.
  *
  * @class Slot
  *
@@ -23,8 +22,15 @@ function Slot(gptHandler, slotConfig, viewPortCfg) {
 
     var self = this;
 
+    util.enforceType(gptHandler, 'object');
+    util.enforceType(slotConfig, 'object');
+    util.enforceType(viewPortCfg, 'object');
+
     /**
-     * @private
+     * @property {Object} private
+     *
+     * The private object is private and can change at any time.
+     * It should not be referenced outside of the class definition.
      */
     this.private = {};
     this.private.gpt = gptHandler;
@@ -36,6 +42,7 @@ function Slot(gptHandler, slotConfig, viewPortCfg) {
     this.private.registerSlot = function () {
         return function (gptSlot) {
             self.private.gptSlot = gptSlot;
+            util.foreachProp(self.private.targetingMap, self.setTargeting, self);
         };
     };
 
@@ -68,11 +75,11 @@ function Slot(gptHandler, slotConfig, viewPortCfg) {
 
     //? if (DEBUG) {
     if (!this.isActive()) {
-        log.warn(
-            'No size configured for catagory: ' +
-            this.private.viewPortCfg.viewCatagory() +
-            ' for slot with id: ' + this.getGPTDivId()
-        );
+        //log.warn(
+        //    'No size configured for catagory: ' +
+        //    this.private.viewPortCfg.viewCatagory() +
+        //    ' for slot with id: ' + this.getGPTDivId()
+        //);
     }
     //? }
 }
@@ -93,7 +100,6 @@ Slot.prototype.defineSlot = function () {
     else {
         this.private.defineSlot();
     }
-    util.foreachProp(this.private.targetingMap, this.setTargeting, this);
 };
 
 /**
@@ -205,10 +211,20 @@ Slot.prototype.getTargeting = function () {
  *
  */
 Slot.prototype.setTargeting = function (key, value) {
-    var self = this;
+    var self = this, errors = [];
+
     util.enforceType(key, 'string');
     util.enforceType(value, ['string', 'number', 'array']);
+
+    util.validateTargetingKey(key, errors);
+    util.validateTargetingValue(value, errors);
+
+    if (errors.length > 0) {
+        throw new Error(errors.join("\n"));
+    }
+
     this.private.targetingMap[key] = value;
+
     if (this.isDefined()) {
         this.private.gpt.q(function (gpt) {
             gpt.setSlotTargeting(self.getGPTSlot(), key, value);

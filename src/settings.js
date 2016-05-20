@@ -355,10 +355,7 @@ function SlotSettings(slotConfig) {
                         warnings.push('Slot viewPortSizes contains unkown size catagory ' + catagory);
                     }
 
-                    if (util.isMultiSizeArray(sizes) || util.isSingleSizeArray(sizes) ) {
-
-                    }
-                    else {
+                    if (!util.isMultiSizeArray(sizes) && !util.isSingleSizeArray(sizes)) {
                         errors.push('Slot sizes is not a SingleSize or MultiSize array');
                     }
                 });
