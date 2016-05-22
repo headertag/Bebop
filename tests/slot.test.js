@@ -16,7 +16,7 @@
  * };
  */
 var GPTHandler = require('./../src/gpthandler');
-var validate = require('./../src/validation');
+var settings = require('./../src/settings');
 var MockGoogletag = require('./mockgoogletag');
 var Slot = require('./../src/slot');
 
@@ -59,20 +59,20 @@ describe('Slot Test Suite', function () {
 
     beforeEach(function () {
         mockGPT = new MockGoogletag();
-        generalBebopSettings = validate.createBebopSettings(generalViewPortConfig);
+        generalBebopSettings = settings.createBebopSettings(generalViewPortConfig);
         gptHandler = new GPTHandler(mockGPT, generalBebopSettings);
         spyOn(mockGPT, "defineSlot");
         spyOn(mockGPT, "defineInterstitialSlot");
     });
 
     it('Slot instantiation with valid information should work correctly', function () {
-        var slotSettings = validate.createSlotSettings(slotConfigGeneral),
+        var slotSettings = settings.createSlotSettings(slotConfigGeneral),
             slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
         expect(slot).toBeDefined();
     });
 
     it('Missing parameter: gpthandler, should throw', function () {
-        var slotSettings = validate.createSlotSettings(slotConfigGeneral);
+        var slotSettings = settings.createSlotSettings(slotConfigGeneral);
         expect(function () {
             new Slot(undefined, slotSettings, generalBebopSettings.viewPort);
         }).toThrow();
@@ -85,7 +85,7 @@ describe('Slot Test Suite', function () {
     });
 
     it('Missing parameter: viewPortCfg, should throw', function () {
-        var slotSettings = validate.createSlotSettings(slotConfigGeneral);
+        var slotSettings = settings.createSlotSettings(slotConfigGeneral);
         expect(function () {
             new Slot(mockGPT, slotSettings);
         }).toThrow();
@@ -107,7 +107,7 @@ describe('Slot Test Suite', function () {
                         small: [ [300, 50], [320, 50], [300, 100] ]
                     }
                 },
-                slotSettings = validate.createSlotSettings(slotConfig),
+                slotSettings = settings.createSlotSettings(slotConfig),
                 slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
             expect(mockGPT.defineSlot).toHaveBeenCalled();
         });
@@ -126,7 +126,7 @@ describe('Slot Test Suite', function () {
                         small: [ [300, 50], [320, 50], [300, 100] ]
                     }
                 },
-                slotSettings = validate.createSlotSettings(slotConfig),
+                slotSettings = settings.createSlotSettings(slotConfig),
                 slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
             expect(mockGPT.defineSlot).not.toHaveBeenCalled();
         });
@@ -145,7 +145,7 @@ describe('Slot Test Suite', function () {
                         small: [ [300, 50], [320, 50], [300, 100] ]
                     }
                 },
-                slotSettings = validate.createSlotSettings(slotConfig),
+                slotSettings = settings.createSlotSettings(slotConfig),
                 slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
             expect(mockGPT.defineSlot).not.toHaveBeenCalled();
         });
@@ -164,7 +164,7 @@ describe('Slot Test Suite', function () {
                         small: [ [300, 50], [320, 50], [300, 100] ]
                     }
                 },
-                slotSettings = validate.createSlotSettings(slotConfig),
+                slotSettings = settings.createSlotSettings(slotConfig),
                 slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
             expect(mockGPT.defineSlot).not.toHaveBeenCalled();
         });
@@ -182,7 +182,7 @@ describe('Slot Test Suite', function () {
                 },
                 viewPortSizes: ['medium'] // Important piece for this test
             },
-                slotSettings = validate.createSlotSettings(slotConfig),
+                slotSettings = settings.createSlotSettings(slotConfig),
                 slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
             expect(mockGPT.defineInterstitialSlot).toHaveBeenCalled();
         });
@@ -197,7 +197,7 @@ describe('Slot Test Suite', function () {
                 },
                 viewPortSizes: ['small'] // Important piece for this test
             },
-                slotSettings = validate.createSlotSettings(slotConfig),
+                slotSettings = settings.createSlotSettings(slotConfig),
                 slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
             expect(mockGPT.defineInterstitialSlot).not.toHaveBeenCalled();
         });
@@ -212,7 +212,7 @@ describe('Slot Test Suite', function () {
                 },
                 viewPortSizes: ['large'] // Important piece for this test
             },
-                slotSettings = validate.createSlotSettings(slotConfig),
+                slotSettings = settings.createSlotSettings(slotConfig),
                 slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
             expect(mockGPT.defineInterstitialSlot).not.toHaveBeenCalled();
         });
@@ -236,7 +236,7 @@ describe('Slot Test Suite', function () {
                         medium: [ [300, 250] ]
                     }
                 },
-                slotSettings = validate.createSlotSettings(slotConfig),
+                slotSettings = settings.createSlotSettings(slotConfig),
                 slot = new Slot(mockGPT, slotSettings, generalBebopSettings.viewPort);
             return slot;
         }

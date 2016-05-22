@@ -1,23 +1,28 @@
 'use strict';
 
+//? include("./macros.ms");
+
 /**
  * @module private/gpthandler
+ *
+ * @requires private/type
  */
 
-var util = require('./util'),
-    log = require('./log').log,
-    type = require('./type');
+var type = require('./type');
 
 /**
  * The GPTHandler class is not part for the public Bebop API
  *
  * @class GPTHandler
  * @param {Googletag} googletag - A reference to the global googletag object.
- * @param {BebopConfig} config - The Bebop configuration object.
+ * @param {BebopSettings} settings - A BebopSettings object.
  */
-function GPTHandler(googletag, config) {
+function GPTHandler(googletag, settings) {
+    //? ASSERT_TYPE('googletag', "'object'");
+    //? ASSERT_TYPE('settings', "'object'");
+
     this.googletag = googletag;
-    this.config = config;
+    this.settings = settings;
 }
 
 /**
@@ -26,34 +31,24 @@ function GPTHandler(googletag, config) {
  * @param {GPTCallback} callback - The callback to pass to the gpt cmd queue
  */
 GPTHandler.prototype.q = function (callback) {
+    //? ASSERT_TYPE('callback', "'function'");
+
     var self = this, tag;
 
-    //? if (ASSERT_TYPE)
-    util.enforceType(callback, 'function');
+    if (this.settings.headertag.enabled()) {
+        tag = this.settings.headertag.reference();
 
-    if (this.config.headertag.enabled()) {
-        tag = this.config.headertag.reference();
-        // if (DEBUG) {
-        if (type.isUndef(tag)) {
-            log.warn('Headertag Reference is undefined, will call googletag instead');
+        if (type.isUndef(tag) || tag.apiReady !== true) {
+            tag = this.tag();
+            //? LOG_WARN("'Headertag Reference is undefined or the API is not ready, will call googletag instead'");
         }
-        // }
+    }
+    else {
+        tag = this.tag();
     }
 
-    tag = tag || this.tag();
-
     this.tag().cmd.push(function () {
-        try {
-            callback(self, tag);
-        }
-        catch (error) {
-            //? if (DEBUG) {
-            if (error.stack) {
-                log.error(error.stack);
-            }
-            //? }
-            throw error;
-        }
+        callback(self, tag);
     });
 };
 
@@ -70,12 +65,12 @@ GPTHandler.prototype.tag = function () {
  * @param {GPTDivId} divId - ID of the div element containing the ad slot.
  */
 GPTHandler.prototype.display = function (divId) {
-    // if (ASSERT_TYPE)
-    util.enforceType(divId, 'string');
+    //? ASSERT_TYPE('divId', "'string'");
+
     this.q(function (self, tag) {
         // this is only here as headertag 1.2.x did not have support for
         // disableInitalLoad setups, TODO: test without this check
-        if (self.config.gpt.disableInitalLoad()) {
+        if (self.settings.gpt.disableInitalLoad()) {
             self.tag().display(divId);
         }
         else {
@@ -91,11 +86,8 @@ GPTHandler.prototype.display = function (divId) {
  * @param {Object?} opt_options - Configuration options associated with this refresh call.
  */
 GPTHandler.prototype.refresh = function (opt_slots, opt_options) {
-
-    //? if (ASSERT_TYPE) {
-    util.enforceType(opt_slots, ['array', 'null']);
-    util.enforceType(opt_options, ['object', 'undefined']);
-    //? }
+    //? ASSERT_TYPE('opt_slots', "['array', 'null']");
+    //? ASSERT_TYPE('opt_options', "['object', 'undefined']");
 
     if (!type.isNull(opt_slots)) {
         opt_slots = type.isArray(opt_slots) ? opt_slots : [opt_slots];
@@ -116,13 +108,10 @@ GPTHandler.prototype.refresh = function (opt_slots, opt_options) {
  * @throws If the {@link GPTSlot} could not be created.
  */
 GPTHandler.prototype.defineSlot = function (adUnitPath, sizes, gptDivId, register) {
-
-    //? if (ASSERT_TYPE) {
-    util.enforceType(adUnitPath, 'string');
-    util.enforceType(sizes, 'array');
-    util.enforceType(gptDivId, 'string');
-    util.enforceType(register, 'function');
-    //? }
+    //? ASSERT_TYPE('adUnitPath', "'string'");
+    //? ASSERT_TYPE('sizes', "'array'");
+    //? ASSERT_TYPE('gptDivId', "'string'");
+    //? ASSERT_TYPE('register', "'function'");
 
     this.q(function (self) {
         var gptSlot = self.tag().defineSlot(adUnitPath, sizes, gptDivId);
@@ -140,12 +129,9 @@ GPTHandler.prototype.defineSlot = function (adUnitPath, sizes, gptDivId, registe
  * @throws If the {@link GPTSlot} could not be created.
  */
 GPTHandler.prototype.defineInterstitialSlot = function (adUnitPath, gptDivId, register) {
-
-    //? if (ASSERT_TYPE) {
-    util.enforceType(adUnitPath, 'string');
-    util.enforceType(gptDivId, 'string');
-    util.enforceType(register, 'function');
-    //? }
+    //? ASSERT_TYPE('adUnitPath', "'string'");
+    //? ASSERT_TYPE('gptDivId', "'string'");
+    //? ASSERT_TYPE('register', "'function'");
 
     this.q(function (self) {
         var gptSlot = self.tag().defineOutOfPageSlot(adUnitPath, gptDivId);
@@ -157,6 +143,9 @@ GPTHandler.prototype.defineInterstitialSlot = function (adUnitPath, gptDivId, re
  * Registers the slot
  */
 GPTHandler.prototype.registerSlot = function (gptSlot, register) {
+    //? ASSERT_TYPE('gptSlot', "['object', 'null']");
+    //? ASSERT_TYPE('register', "'function'");
+
     if (type.isNull(gptSlot)) {
         throw new Error('Could not create slot: ' + gptSlot);
     }
@@ -172,12 +161,9 @@ GPTHandler.prototype.registerSlot = function (gptSlot, register) {
  * @param {(string|Array.<string>)} - Targeting parameter value or list of values.
  */
 GPTHandler.prototype.setSlotTargeting = function (gptSlot, key, value) {
-
-    //? if (ASSERT_TYPE) {
-    util.enforceType(gptSlot, 'object');
-    util.enforceType(key, 'string');
-    util.enforceType(value, ['string', 'array']);
-    //? }
+    //? ASSERT_TYPE('gptSlot', "'object'");
+    //? ASSERT_TYPE('key', "'string'");
+    //? ASSERT_TYPE('value', "['string', 'array']");
 
     this.q(function () {
         gptSlot.setTargeting(key, value);
@@ -190,9 +176,7 @@ GPTHandler.prototype.setSlotTargeting = function (gptSlot, key, value) {
  * @param {GPTSlot} gptSlot - The slot to clear targeting on.
  */
 GPTHandler.prototype.clearSlotTargeting = function (gptSlot) {
-
-    //? if (ASSERT_TYPE)
-    util.enforceType(gptSlot, 'object');
+    //? ASSERT_TYPE('gptSlot', "'object'");
 
     this.q(function () {
         gptSlot.clearTargeting();
@@ -205,11 +189,8 @@ GPTHandler.prototype.clearSlotTargeting = function (gptSlot) {
  * @param {(string|Array.<string>)} - Targeting parameter value or list of values.
  */
 GPTHandler.prototype.setPageTargeting = function (key, value) {
-
-    //? if (ASSERT_TYPE) {
-    util.enforceType(key, 'string');
-    util.enforceType(value, ['string', 'array']);
-    //? }
+    //? ASSERT_TYPE('key', "'string'");
+    //? ASSERT_TYPE('value', "['string', 'array']");
 
     this.q(function (self) {
         self.tag().pubads().setTargeting(key, value);
@@ -223,6 +204,8 @@ GPTHandler.prototype.setPageTargeting = function (key, value) {
  * @param {Object} window
  */
 GPTHandler.loadGoogletag = function (window) {
+    //? ASSERT_TYPE('window', "'object'");
+
     var gTag = window.document.createElement('script'),
         protocol = 'https:' === window.document.location.protocol ? 'https:' : 'http:',
         src = protocol + '//www.googletagservices.com/tag/js/gpt.js',

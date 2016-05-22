@@ -1,13 +1,22 @@
 'use strict';
 
-// classes
+//? include("./macros.ms");
+
+/**
+ * @module private/init
+ *
+ * @requires public/bebop
+ * @requires private/gpthandler
+ * @requires private/validation
+ * @requires private/settings
+ * @requires private/type
+ */
+
 var GPTHandler = require('./gpthandler'),
     Bebop = require('./bebop'),
-// functions
-    validate = require('./validation'),
-    log = require('./log').log,
+    validation = require('./validation'),
+    settings = require('./settings'),
     type = require('./type'),
-    util = require('./util'),
 // Module Level Variables
     asyncErrorMsg = 'BebopConfig has not yet been passed to Bebop, when loading both Bebop and ' +
                     'BebopConfig asynchronously window.bebopQueue.unshit(callback) must be used. ' +
@@ -15,23 +24,19 @@ var GPTHandler = require('./gpthandler'),
 
 function init(window) {
 
-
     if (type.isObj(window.bebopConfig)) {
-        //? if (DEBUG)
-        log.info('Loaded BebopConfig, proceeding to runQueue');
-
+        //? LOG("'Loaded BebopConfig, proceeding to runQueue'");
         runQueue(window, createBebop(window, window.bebopConfig));
         return;
     }
 
-    //? if (DEBUG)
-    log.warn('window.bebopConfig is not defined, checking fist callback in bebopQueue for BebopConfig');
+    //? LOG_WARN("'window.bebopConfig is not defined, checking fist callback in bebopQueue for BebopConfig'");
 
     runQueue(window, null, true);
 }
 
 function createBebop(window, bebopConfig) {
-    var bebopSettings = validate.createBebopSettings(bebopConfig),
+    var bebopSettings = settings.createBebopSettings(bebopConfig),
         gptHandler;
 
     if (bebopSettings.gpt.loadTag()) {
@@ -47,12 +52,12 @@ function runQueue(window, bebop, waitingOnConfig) {
 
     waitingOnConfig = type.isBool(waitingOnConfig) ?  waitingOnConfig : false;
 
-    util.enforceType(window.bebopQueue, 'array');
+    validation.enforceType(window.bebopQueue, 'array');
 
     while (window.bebopQueue.length > 0) {
 
         callback = window.bebopQueue.shift();
-        util.enforceType(callback, 'function');
+        validation.enforceType(callback, 'function');
 
         if (waitingOnConfig) {
             waitingOnConfig = false;
@@ -69,14 +74,13 @@ function runQueue(window, bebop, waitingOnConfig) {
             if (waitingOnConfig) {
                 throw new Error(asyncErrorMsg);
             }
-            util.enforceType(callback, 'function');
+            validation.enforceType(callback, 'function');
             callback(bebop);
         },
 
         unshift: function (callback) {
-            util.enforceType(callback, 'function');
+            validation.enforceType(callback, 'function');
             if (waitingOnConfig) {
-                log.warn('config was loaded very late');
                 waitingOnConfig = false;
                 bebop = createBebop(window, callback());
             }

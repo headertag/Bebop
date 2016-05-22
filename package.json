@@ -9,10 +9,10 @@
   "author": "Michael Robb <michael.robb@indexexchange.com>",
   "license": "",
   "devDependencies": {
+    "browserify": "^13.0.1",
     "del": "^2.2.0",
     "gulp": "^3.9.1",
     "gulp-batch": "^1.0.5",
-    "gulp-browserify": "^0.5.1",
     "gulp-jscs": "^3.0.2",
     "gulp-jshint": "^2.0.0",
     "gulp-metascript": "0.0.3",
@@ -24,6 +24,8 @@
     "jsdoc": "^3.4.0",
     "jshint": "^2.9.2",
     "jshint-stylish": "^2.2.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
     "yargs": "^4.7.1"
   },
   "dependencies": {

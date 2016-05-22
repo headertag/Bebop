@@ -1,15 +1,39 @@
 'use strict';
 
+//? include("./macros.ms");
+
 /**
  * @module private/settings
+ *
+ * @requires public/errors
+ * @requires private/type
+ * @requires private/util
+ * @requires private/validation
  */
 
 var type = require('./type'),
-    util = require('./util');
+    util = require('./util'),
+    validation = require('./validation'),
+    errors = require('./errors');
+
+function invalidStateError(errors) {
+    //? ASSERT_TYPE('errors', "['array', 'string']");
+
+    var msg;
+
+    if (type.isArray(errors)) {
+        msg = errors.join('\n');
+    }
+    else {
+        msg = errors;
+    }
+
+    throw new errors.InvalidStateError(msg);
+}
 
 function errorCheck(errors) {
     if (errors.length > 0) {
-        util.invalidStateError(errors);
+        invalidStateError(errors);
     }
 }
 
@@ -17,11 +41,11 @@ function errorCheck(errors) {
  * HeadertagSettings is not part of the public Bebop API.
  *
  * @class
+ *
  * @param {boolean} [enabled=false] - True if headertag is enabled, false otherwise.
  * @param {Object?} reference - A reference to the global headertag object.
  */
 function HeadertagSettings(enabled, reference) {
-    //Enabled :bool, default false;  reference: function
     var errors = [], msg = '';
 
     switch (type.getType(enabled)) {
@@ -38,7 +62,7 @@ function HeadertagSettings(enabled, reference) {
         case 'function': break;
         case 'undefined':
             reference = function () {
-                util.invalidStateError(errors);
+                errorCheck(errors);
             };
             /* falls through */
         default:
@@ -137,7 +161,7 @@ function GPTSettings(disableInitalLoad, loadTag) {
  * @param {ViewPortConfig} vpsConfig
  */
 function ViewPortSettings(vpsConfig) {
-    var viewCatagories = {'huge': 0, 'large': 0, 'medium': 0, 'small': 0, 'mini': 0},
+    var viewCatagories = {'huge': 0, 'large': 0, 'medium': 0, 'small': 0, 'tiny': 0},
         getViewPortWidth,
         errors = [],
         msg = '';
@@ -234,6 +258,10 @@ function ViewPortSettings(vpsConfig) {
  * @param {ViewPortSettings} viewPortSettings
  */
 function BebopSettings(headertagSettings, gptSettings, viewPortSettings) {
+    //? ASSERT_TYPE('headertagSettings', "'object'");
+    //? ASSERT_TYPE('gptSettings', "'object'");
+    //? ASSERT_TYPE('viewPortSettings', "'object'");
+
     var errors = [];
 
     /** @param */
@@ -265,7 +293,6 @@ function BebopSettings(headertagSettings, gptSettings, viewPortSettings) {
  * @class
  *
  * @param {SlotConfig} slotConfig
- *
  */
 function SlotSettings(slotConfig) {
 
@@ -278,7 +305,7 @@ function SlotSettings(slotConfig) {
         errors.push('Slot Configuration is undefined or invalid');
     }
 
-    if (!type.isStr(slotConfig.adUnitPath) || !util.isValidAdUnitPath(slotConfig.adUnitPath)) {
+    if (!validation.isValidAdUnitPath(slotConfig.adUnitPath)) {
         errors.push('Ad Unit Path is not defined or is invalid');
     }
 
@@ -288,8 +315,8 @@ function SlotSettings(slotConfig) {
 
     if (type.isObj(slotConfig.targeting)) {
         util.foreachProp(slotConfig.targeting, function (key, value) {
-            util.validateTargetingKey(key, errors);
-            util.validateTargetingValue(value, errors);
+            validation.isValidTargetingKey(key, errors);
+            validation.isValidTargetingValue(value, errors);
         });
     }
     else {
@@ -298,22 +325,16 @@ function SlotSettings(slotConfig) {
 
     if (!type.isBool(slotConfig.lazyload)) {
         slotConfig.lazyload = false;
-    }
-    else {
         warnings.push('No lazyload parameter was passed, using default false');
     }
 
     if (!type.isBool(slotConfig.interstitial)) {
         slotConfig.interstitial = false;
-    }
-    else {
         warnings.push('No interstitial parameter was passed, using default false');
     }
 
     if (!type.isBool(slotConfig.defineOnDisplay)) {
         slotConfig.defineOnDisplay = false;
-    }
-    else {
         warnings.push('No defineOnDisplay parameter was passed, using default false');
     }
 
@@ -355,7 +376,7 @@ function SlotSettings(slotConfig) {
                         warnings.push('Slot viewPortSizes contains unkown size catagory ' + catagory);
                     }
 
-                    if (!util.isMultiSizeArray(sizes) && !util.isSingleSizeArray(sizes)) {
+                    if (!validation.isMultiSizeArray(sizes) && !validation.isSingleSizeArray(sizes)) {
                         errors.push('Slot sizes is not a SingleSize or MultiSize array');
                     }
                 });
@@ -457,10 +478,89 @@ function SlotSettings(slotConfig) {
     };
 }
 
+/**
+ * @param {BebopConfig} bebopConfig
+ * @return {BebopSettings}
+ * @throws If the {@link BebopConfig} object is not valid.
+ */
+function createBebopSettings(bebopConfig) {
+    var htConfig = bebopConfig.headertag,
+        gptConfig = bebopConfig.gpt,
+        vpConfig = bebopConfig.viewPort,
+        htSettings,
+        gptSettings,
+        vpSettigns,
+        bebopSettings,
+        errors;
+
+    if (type.isObj(htConfig)) {
+        htSettings = new HeadertagSettings(htConfig.enabled, htConfig.reference);
+    }
+    else {
+        htSettings = new HeadertagSettings();
+    }
+
+    if (type.isObj(gptConfig)) {
+        gptSettings = new GPTSettings(gptConfig.disableInitalLoad, gptConfig.loadTag);
+    }
+    else {
+        gptSettings = new GPTSettings();
+    }
+
+    vpSettigns = new ViewPortSettings(vpConfig);
+
+    bebopSettings = new BebopSettings(htSettings, gptSettings, vpSettigns);
+
+    errors = bebopSettings.errors();
+    if (errors.length > 0) {
+        //? if (DEBUG_ERROR) {
+        util.foreach(errors, function (error) {
+            //? LOG_ERROR('error');
+        });
+        //? }
+
+        util.invalidStateError(errors);
+    }
+
+    return bebopSettings;
+}
+
+/**
+ * @param {SlotConfig} slotConfig - The JSON slot configuration object
+ * @return {SlotSettings}
+ * @throws If the {@link SlotConfig} object is not valid.
+ */
+function createSlotSettings(slotConfig) {
+
+    var slotSettings = new SlotSettings(slotConfig),
+        errors = slotSettings.errors();
+
+    //? if (DEBUG_WARN) {
+    util.foreach(slotSettings.warnings(), function (warning) {
+        // so that the warnings don't show up when running the tests.
+        //? LOG_WARN('warning');
+    });
+    //? }
+
+    if (errors.length > 0) {
+        //? if (DEBUG_ERROR) {
+        util.foreach(errors, function (error) {
+            //? LOG_ERROR('error');
+        });
+        //? }
+
+        util.invalidStateError(errors);
+    }
+
+    return slotSettings;
+}
+
 module.exports = {
     HeadertagSettings: HeadertagSettings,
     GPTSettings: GPTSettings,
     ViewPortSettings: ViewPortSettings,
     BebopSettings: BebopSettings,
-    SlotSettings: SlotSettings
+    SlotSettings: SlotSettings,
+    createBebopSettings: createBebopSettings,
+    createSlotSettings: createSlotSettings
 };

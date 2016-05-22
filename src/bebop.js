@@ -1,14 +1,20 @@
 'use strict';
 
+//? include("./macros.ms");
+
 /**
  * @module public/bebop
+ *
+ * @requires public/slot
+ * @requires private/type
+ * @requires private/util
+ * @requires private/validation
+ * @requires private/settings
  */
 
-// CLASSES
 var Slot = require('./slot'),
-// MODULES
-    validator = require('./validation'),
-    log = require('./log').log,
+    validation = require('./validation'),
+    settings = require('./settings'),
     type = require('./type'),
     util = require('./util');
 
@@ -28,6 +34,8 @@ var Slot = require('./slot'),
  * });
  */
 function Bebop(gptHandler, bebopSettings) {
+    //? ASSERT_TYPE('gptHandler', "'object'");
+    //? ASSERT_TYPE('bebopSettings', "'object'");
 
     /**
      * @property {Object} private
@@ -48,7 +56,9 @@ function Bebop(gptHandler, bebopSettings) {
  */
 Bebop.prototype.defineSlots = function (slotsConfig) {
     var squibSlots = [];
-    util.enforceType(slotsConfig, 'array');
+
+    validation.enforceType(slotsConfig, 'array');
+
     util.foreach(slotsConfig, function (slotConfig) {
         var squibSlot = this.defineSlot(slotConfig);
         squibSlots.push(squibSlot);
@@ -62,9 +72,15 @@ Bebop.prototype.defineSlots = function (slotsConfig) {
  * @throws if slotConfig is not a valid {@link SlotConfig} object
  */
 Bebop.prototype.defineSlot = function (slotConfig) {
-    var slotSettings = validator.createSlotSettings(slotConfig),
-        slot = new Slot(this.private.gpt, slotSettings, this.private.settings.viewPort);
+    var slotSettings, slot;
+
+    validation.enforceType(slotConfig, 'object');
+
+    slotSettings = settings.createSlotSettings(slotConfig);
+    slot = new Slot(this.private.gpt, slotSettings, this.private.settings.viewPort);
+
     this.private.slots[slot.getGPTDivId()] = slot;
+
     return slot;
 };
 
@@ -74,10 +90,14 @@ Bebop.prototype.defineSlot = function (slotConfig) {
  * @param {Object?} options - Configuration options associated with this refresh call.
  */
 Bebop.prototype.refresh = function (slots, options) {
+
+    validation.enforceType(slots, ['array', 'null', 'undefined']);
+    validation.enforceType(slots, ['object', 'undefined']);
+
     // handles the case where only options is passed
     if (type.isObj(slots) && type.isUndef(options)) {
         options = slots;
-        slots = [];
+        slots = null;
     }
 
     // handles the case where nothing was passed
@@ -105,11 +125,11 @@ Bebop.prototype.refresh = function (slots, options) {
  * If the slot is not already defined, display will take care
  * of defining the slot.
  *
- * @param {Slot} slot - The Slot object to display
+ * @param {(Slot|Array.<Slot>)} Slot - An array of {@link Slot} or a single Slot object.
  */
 Bebop.prototype.display = function (slots) {
 
-    util.enforceType(slots, ['array', 'object']);
+    validation.enforceType(slots, ['array', 'object']);
     slots = type.isArray(slots) ? slots : [slots];
 
     // using the q here ensures that the slots are defined
@@ -117,9 +137,7 @@ Bebop.prototype.display = function (slots) {
         util.foreach(slots, function (slot) {
 
             if (!slot.isActive()) {
-                //? if (DEBUG)
-                log.warn('Tringing to display non active Slot with GPT Div Id: ' + slot.getGPTDivId());
-
+                //? LOG_WARN("'Trying to display non active Slot with GPT Div Id: ' + slot.getGPTDivId()");
                 return;
             }
 
@@ -138,7 +156,7 @@ Bebop.prototype.display = function (slots) {
  * @param {TargetingMap} pageTargets - Targeting parameters.
  */
 Bebop.prototype.setPageTargets = function (pageTargets) {
-    util.enforceType(pageTargets, 'object');
+    validation.enforceType(pageTargets, 'object');
     util.foreachProp(pageTargets, this.private.gpt.setPageTargeting, this.private.gpt);
 };
 
@@ -146,7 +164,11 @@ Bebop.prototype.setPageTargets = function (pageTargets) {
  * @return {Array.<Slot>} All slots registered with Bebop.
  */
 Bebop.prototype.getSlots = function () {
-    return this.private.slots;
+    var slots = [];
+    util.foreachProp(this.private.slots, function (_, slot) {
+        slots.push(slot);
+    });
+    return slots;
 };
 
 module.exports = Bebop;

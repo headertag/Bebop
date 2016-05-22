@@ -23,6 +23,8 @@ function isArray(test) {
  * If test is an array, "array" is returned
  * If test is NaN, "NaN" is returned
  *
+ * @function getType
+ *
  * @return {string} The lower case name of the type.
  */
 function type(test) {

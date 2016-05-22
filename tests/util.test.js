@@ -16,37 +16,6 @@ function ObjectWithProp() {
 
 describe('util test suite', function () {
     /**
-     * enforceType Tests
-     * =============================================================================
-     */
-    it('util.enforceType({}, "object") should not throw an Error)', function () {
-        expect(util.enforceType.bind(null, {}, "object")).not.toThrow();
-    });
-
-    it('util.enforceType(function(){}, "function") should not throw an Error)', function () {
-        expect(util.enforceType.bind(null, function(){}, "function")).not.toThrow();
-    });
-
-    it('util.enforceType(undefined, ["boolean", "undefined"]) should not throw an Error)', function () {
-        var testArray = ["boolean", "undefined"],
-            bound = util.enforceType.bind(null, undefined, testArray);
-        expect(bound).not.toThrow();
-    });
-
-    it('util.enforceType([], "object") should throw an Error)', function () {
-        expect(util.enforceType.bind(null, [], "object")).toThrow();
-    });
-
-    it('util.enforceType(null, "object") should throw an Error)', function () {
-        expect(util.enforceType.bind(null, null, "object")).toThrow();
-    });
-
-    it('util.enforceType(undefined, "boolean") should throw an Error)', function () {
-        var bound = util.enforceType.bind(null, undefined, "boolean");
-        expect(bound).toThrow();
-    });
-
-    /**
      * isEmptyObject Tests
      * =============================================================================
      */

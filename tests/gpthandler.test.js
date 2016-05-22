@@ -5,7 +5,7 @@
  * =============================================================================
  */
 var GPTHandler = require('./../src/gpthandler');
-var validate = require('./../src/validation');
+var settings = require('./../src/settings');
 var MockGoogletag = require('./mockgoogletag');
 
 var bebopConfig = {
@@ -22,7 +22,7 @@ describe('GPTHandler Test Suite', function () {
 
     beforeEach(function () {
         mochGPT = new MockGoogletag(),
-        config = validate.createBebopSettings(bebopConfig);
+        config = settings.createBebopSettings(bebopConfig);
         gptHandler = new GPTHandler(mochGPT, config);
 
         //spyOn(mochGPT, 'defineSlot');

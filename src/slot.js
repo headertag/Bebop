@@ -1,12 +1,18 @@
 'use strict';
 
+//? include("./macros.ms");
+
 /**
  * @module public/slot
+ *
+ * @requires private/util
+ * @requires private/log
+ * @requires private/validation
  */
 
 var util = require('./util'),
     type = require('./type'),
-    log = require('./log').log;
+    validation = require('./validation');
 
 /**
  * This Constructor is not part of the public Bebop API.
@@ -19,12 +25,11 @@ var util = require('./util'),
  * @param {ViewPortConfig} viewPortCfg
  */
 function Slot(gptHandler, slotConfig, viewPortCfg) {
-
     var self = this;
 
-    util.enforceType(gptHandler, 'object');
-    util.enforceType(slotConfig, 'object');
-    util.enforceType(viewPortCfg, 'object');
+    validation.enforceType(gptHandler, 'object');
+    validation.enforceType(slotConfig, 'object');
+    validation.enforceType(viewPortCfg, 'object');
 
     /**
      * @property {Object} private
@@ -52,8 +57,7 @@ function Slot(gptHandler, slotConfig, viewPortCfg) {
             divId = self.getGPTDivId(),
             register = self.private.registerSlot();
 
-        //? if (DEBUG)
-        log('defining slot with id: ' + divId);
+        //? LOG("'defining slot with id: ' + divId");
 
         self.private.gpt.defineSlot(adUnit, sizes, divId, register);
     };
@@ -63,8 +67,7 @@ function Slot(gptHandler, slotConfig, viewPortCfg) {
             divId = self.getGPTDivId(),
             register = self.private.registerSlot();
 
-        //? if (DEBUG)
-        log('defining interstitial slot with id: ' + divId);
+        //? LOG("'defining interstitial slot with id: ' + divId");
 
         self.private.gpt.defineInterstitialSlot(adUnit, divId, register);
     };
@@ -73,15 +76,7 @@ function Slot(gptHandler, slotConfig, viewPortCfg) {
         this.defineSlot();
     }
 
-    //? if (DEBUG) {
-    if (!this.isActive()) {
-        //log.warn(
-        //    'No size configured for catagory: ' +
-        //    this.private.viewPortCfg.viewCatagory() +
-        //    ' for slot with id: ' + this.getGPTDivId()
-        //);
-    }
-    //? }
+    //? LOG_WARN("'No size configured for catagory: ' + this.private.viewPortCfg.viewCatagory() + ' for slot with id: ' + this.getGPTDivId()", "!this.isActive()");
 }
 
 /**
@@ -90,10 +85,10 @@ function Slot(gptHandler, slotConfig, viewPortCfg) {
  */
 Slot.prototype.defineSlot = function () {
     if (this.isDefined()) {
-        // if (DEBUG) {
-        log.warn('Slot with GPT Div Id: ' + this.getGPTDivId() + ' is already defined');
+        //? LOG_WARN("'Slot with GPT Div Id: ' + this.getGPTDivId() + ' is already defined'");
         return;
     }
+
     if (this.isInterstitial()) {
         this.private.defineInterstitialSlot();
     }
@@ -213,11 +208,8 @@ Slot.prototype.getTargeting = function () {
 Slot.prototype.setTargeting = function (key, value) {
     var self = this, errors = [];
 
-    util.enforceType(key, 'string');
-    util.enforceType(value, ['string', 'number', 'array']);
-
-    util.validateTargetingKey(key, errors);
-    util.validateTargetingValue(value, errors);
+    validation.isValidTargetingKey(key, errors);
+    validation.isValidTargetingValue(value, errors);
 
     if (errors.length > 0) {
         throw new Error(errors.join("\n"));
@@ -245,7 +237,7 @@ Slot.prototype.setTargeting = function (key, value) {
 Slot.prototype.clearTargeting = function (key) {
     var that = this;
 
-    util.enforceType(key, ['string', 'undefined']);
+    validation.enforceType(key, ['string', 'undefined']);
 
     if (type.isUndef(key)) {
         this.private.targetingMap = {};
@@ -254,9 +246,7 @@ Slot.prototype.clearTargeting = function (key) {
         delete this.private.targetingMap[key];
     }
     else {
-        //if? (DEBUG)
-        log.warn('Slot wight GPT Div Id' + this.getGPTDivId() + ' does not have a targeting key = ' + key);
-
+        //? LOG_WARN("'Slot wight GPT Div Id' + this.getGPTDivId() + ' does not have a targeting key = ' + key");
         return;
     }
 

@@ -2,84 +2,127 @@
 
 /**
  * @module private/validation
+ *
+ * @requires private/type
+ * @requires private/util
  */
 
-// Classes
-var settings = require('./settings'),
-    HeadertagSettings = settings.HeadertagSettings,
-    GPTSettings = settings.GPTSettings,
-    ViewPortSettings = settings.ViewPortSettings,
-    BebopSettings = settings.BebopSettings,
-    SlotSettings = settings.SlotSettings,
-// Modules
+var util = require('./util'),
     type = require('./type'),
-    util = require('./util'),
-    log = require('./log').log;
+    errors = require('./errors');
 
 /**
- * @param {BebopConfig} bebopConfig
- * @return {BebopSettings}
- * @throws If the {@link BebopConfig} object is not valid.
+ * @param {any} test - The value to be tested.
+ * @param {(string|Array.<string>)} types - A list of types to check.
+ *
+ * @throws If `test`'s type is not in `types`
+ *
+ * @example
+ * validation.enforceType(true, 'boolean')
+ * validation.enforceType(null, ['object', 'array']) // throws an Error
  */
-function createBebopSettings(bebopConfig) {
-    var htConfig = bebopConfig.headertag,
-        gptConfig = bebopConfig.gpt,
-        vpConfig = bebopConfig.viewPort,
-        htSettings,
-        gptSettings,
-        vpSettigns,
-        bebopSettings,
-        errors;
-
-    if (type.isObj(htConfig)) {
-        htSettings = new HeadertagSettings(htConfig.enabled, htConfig.reference);
+function enforceType(test, types) {
+    var msg, strTypes;
+    if (!type.isOneOf(test, types)) {
+        strTypes = type.isArray(types) ? types.join(', ') : types;
+        msg = 'Expcted types: [' + strTypes + '] got: ' + type.getType(test);
+        throw new errors.TypeMismatchError(msg);
     }
-    else {
-        htSettings = new HeadertagSettings();
-    }
-
-    if (type.isObj(gptConfig)) {
-        gptSettings = new GPTSettings(gptConfig.disableInitalLoad, gptConfig.loadTag);
-    }
-    else {
-        gptSettings = new GPTSettings();
-    }
-
-    vpSettigns = new ViewPortSettings(vpConfig);
-
-    bebopSettings = new BebopSettings(htSettings, gptSettings, vpSettigns);
-
-    errors = bebopSettings.errors();
-    if (errors.length > 0) {
-        util.foreach(errors, log.error);
-        util.invalidStateError(errors);
-    }
-
-    return bebopSettings;
 }
 
 /**
- * @param {SlotConfig} slotConfig - The JSON slot configuration object
- * @return {SlotSettings}
- * @throws If the {@link SlotConfig} object is not valid.
+ * For now this function just tests if `test` is a string,
+ * better validation is required.
+ *
+ * @param {string} test - The string to be tested.
+ *
+ * @return {boolean} True if `adUnitPath` is a valid {@link AdUnitPath}
  */
-function createSlotSettings(slotConfig) {
+function isValidAdUnitPath(test) {
+    return type.isStr(test);
+}
 
-    var slotSettings = new SlotSettings(slotConfig),
-        errors = slotSettings.errors();
+/**
+ * Better validation is required.
+ *
+ * @param {(string|number)} test - The targeting key to be tested.
+ * @param {Array.<string>} errors - if `test` is invalid an error message will be pushed to the array.
+ *
+ * @return {boolean} True if `test` is a valid targeting key.
+ */
+function isValidTargetingKey(test, errors) {
+    if (!type.isStr(test)) {
+        errors.push('targeting key ' + test + ' is not a string');
+        return false;
+    }
+    return true;
+}
 
-    //? if (DEBUG)
-    util.foreach(slotSettings.warnings(), log.warn);
+/**
+ * Better validation is required.
+ *
+ * @param {(string|number|Array<string|number>)} value - The targeting value to be tested.
+ * @param {Array.<string>} errors - if `value` is invalid an error message will be pushed to the array.
+ *
+ * @return {boolean} True if `value` is a valid targeting key.
+ */
+function isValidTargetingValue(test, errors) {
+    var msg = 'value: ' + test + ' is not a string or an array of strings',
+        isValid = true;
 
-    if (errors.length > 0) {
-        util.foreach(errors, log.error);
-        util.invalidStateError(errors);
+    if (!type.isOneOf(test, ['string', 'number', 'array'])) {
+        errors.push(msg);
+        isValid = false;
     }
 
-    return slotSettings;
+    if (type.isArray(test)) {
+        isValid = util.foreach(test, function (target) {
+            if (!type.isOneOf(target, ['string', 'number'])) {
+                return false;
+            }
+        });
+
+        if (isValid === false) {
+            errors.push(msg);
+        }
+    }
+
+    return isValid !== false;
+}
+
+/**
+ * @param {*} test - The value to test.
+ * @return {boolean} True if `test` is a {@link SingleSizeArray}
+ */
+function isSingleSizeArray(test) {
+    if (!type.isArray(test) || test.length !== 2) {
+        return false;
+    }
+    return type.isInt(test[0]) && type.isInt(test[1]);
+}
+
+/**
+ * @param {*} test - The value to test.
+ * @return {boolean} True if `test` is a {@link MultiSizeArray}
+ */
+function isMultiSizeArray(test) {
+    var isValid;
+    if (!type.isArray(test)) {
+        return false;
+    }
+    isValid = util.foreach(test, function (element) {
+        if (!isSingleSizeArray(element)) {
+            return false;
+        }
+    });
+    return isValid !== false;
 }
 
 module.exports = {
-    createBebopSettings: createBebopSettings,
-    createSlotSettings: createSlotSettings
+    enforceType: enforceType,
+    isValidAdUnitPath: isValidAdUnitPath,
+    isValidTargetingKey: isValidTargetingKey,
+    isValidTargetingValue: isValidTargetingValue,
+    isSingleSizeArray: isSingleSizeArray,
+    isMultiSizeArray: isMultiSizeArray
 };

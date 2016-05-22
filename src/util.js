@@ -1,40 +1,25 @@
 'use strict';
 
+//? include("./macros.ms");
+
 /**
  * The util module is not a part of the public API
  *
  * @module private/util
+ *
+ * @requires private/type
  */
 
 var type = require('./type');
-
-/**
- * @param {any} test The value to be tested
- * @param {(string|Array.<string>)} types A list of types to check.
- *
- * @throws If test's type is not in types
- *
- * @example
- * util.enforceType(true, 'boolean')
- * util.enforceType(null, ['object', 'array']) // throws an Error
- */
-function enforceType(test, types) {
-    var msg, strTypes;
-    if (!type.isOneOf(test, types)) {
-        strTypes = type.isArray(types) ? types.join(', ') : types;
-        msg = 'Expcted types: [' + strTypes + '] got: ' + type.getType(test);
-        throw new Error(msg);
-    }
-}
 
 /**
  * @param {Object} object The object to check.
  * @return {boolean} true if object is empty, false otherwise
  */
 function isEmptyObject(object) {
+    //? ASSERT_TYPE('object', "'object'");
+
     var prop;
-    //? if (ASSERT_TYPE)
-    enforceType(object, 'object');
 
     for (prop in object) {
         if (object.hasOwnProperty(prop)) {
@@ -52,13 +37,13 @@ function isEmptyObject(object) {
  * @return {boolean} true if the Object contains the property
  */
 function hasProp(object, property, checkParents) {
-    //? if (ASSERT_TYPE) {
-    enforceType(object, 'object');
+
     // object properties can be initalized with numbers
     // like {Infinity:1}, {0:1} and even {1.1:1}, negitive leterals are not allowed
-    enforceType(property, ['string', 'number']);
-    enforceType(checkParents, ['boolean', 'undefined']);
-    //? }
+
+    //? ASSERT_TYPE('object', "'object'");
+    //? ASSERT_TYPE('property', "['string', 'number']");
+    //? ASSERT_TYPE('checkParents', "['boolean', 'undefined']");
 
     checkParents = type.isBool(checkParents) ? checkParents : false;
 
@@ -88,14 +73,15 @@ function hasProp(object, property, checkParents) {
  * });
  */
 function foreachProp(object, callback, thisArg, checkParents) {
+    //? ASSERT_TYPE('object', "'object'");
+    //? ASSERT_TYPE('callback', "'function'");
+    //? ASSERT_TYPE('thisArg', "['object', 'null', 'undefined']");
+    //? ASSERT_TYPE('checkParents', "['boolean', 'undefined']");
+
     var prop, ret;
-    //? if (ASSERT_TYPE) {
-    enforceType(object, 'object');
-    enforceType(callback, 'function');
-    enforceType(thisArg, ['object', 'null', 'undefined']);
-    enforceType(checkParents, ['boolean', 'undefined']);
-    //? }
+
     checkParents = type.isBool(checkParents) ? checkParents : false;
+
     for (prop in object) {
         if (checkParents || hasProp(object, prop)) {
             ret = callback.call(thisArg, prop, object[prop], object);
@@ -124,12 +110,12 @@ function foreachProp(object, callback, thisArg, checkParents) {
  * });
  */
 function foreach(array, callback, thisArg) {
+    //? ASSERT_TYPE('array', "'array'");
+    //? ASSERT_TYPE('callback', "'function'");
+    //? ASSERT_TYPE('thisArg', "['object', 'undefined']");
+
     var i, len, ret;
-    //? if (ASSERT_TYPE) {
-    enforceType(array, 'array');
-    enforceType(callback, 'function');
-    enforceType(thisArg, ['object', 'undefined']);
-    //? }
+
     for (i = 0, len = array.length; i < len; i++) {
         ret = callback.call(thisArg, array[i], i);
         if (!type.isUndef(ret)) {
@@ -146,10 +132,9 @@ function foreach(array, callback, thisArg) {
  * @return {boolean} true if needle is in heystack, false otherwise
  */
 function inArray(needle, heystack) {
-    var ret;
+    //? ASSERT_TYPE('heystack', "'array'");
 
-    //? if (ASSERT_TYPE)
-    enforceType(heystack, 'array');
+    var ret;
 
     if (type.isFunc(heystack.indexOf) && !type.isUndef(needle)) {
         return heystack.indexOf(needle) > -1;
@@ -160,89 +145,14 @@ function inArray(needle, heystack) {
             return true;
         }
     });
+
     return ret === true;
 }
 
-/**
- * @private
- */
-function invalidStateError(errors) {
-    var msg;
-    //? if (ASSERT_TYPE)
-    enforceType(errors, ['array', 'string']);
-    if (type.isArray(errors)) {
-        msg = errors.join('\n');
-    }
-    else {
-        msg = errors;
-    }
-    throw new Error(msg);
-}
-
-function isValidAdUnitPath(adUnitPath) {
-    //return new RegExp('^/\d+[/.*]+').test(adUnitPath);
-    return type.isStr(adUnitPath);
-}
-
-function validateTargetingKey(key, errors) {
-    if (!type.isStr(key) && !type.isInt(key)) {
-        errors.push('targeting key ' + key + ' is not a string');
-    }
-}
-
-function validateTargetingValue(value, errors) {
-    var msg = 'value: ' + value + ' is not a string or an array of strings',
-        isValid;
-
-    if (!type.isOneOf(value, ['string', 'number', 'array'])) {
-        errors.push(msg);
-        return;
-    }
-
-    if (type.isArray(value)) {
-        isValid = foreach(value, function (target) {
-            if (!type.isOneOf(target, ['string', 'number'])) {
-                return false;
-            }
-        });
-
-        if (isValid === false) {
-            errors.push(msg);
-        }
-    }
-}
-
-function isSingleSizeArray(test) {
-    if (!type.isArray(test) || test.length !== 2) {
-        return false;
-    }
-    return type.isInt(test[0]) && type.isInt(test[1]);
-}
-
-function isMultiSizeArray(test) {
-    var isValid;
-    if (!type.isArray(test)) {
-        return false;
-    }
-    isValid = foreach(test, function (element) {
-        if (!isSingleSizeArray(element)) {
-            return false;
-        }
-    });
-    return isValid !== false;
-}
-
 module.exports = {
-    enforceType: enforceType,
     isEmptyObject: isEmptyObject,
     hasProp: hasProp,
     foreachProp: foreachProp,
     foreach: foreach,
-    inArray: inArray,
-    invalidStateError: invalidStateError,
-    isValidAdUnitPath: isValidAdUnitPath,
-    isSingleSizeArray: isSingleSizeArray,
-    isMultiSizeArray: isMultiSizeArray,
-    validateTargetingKey: validateTargetingKey,
-    validateTargetingValue: validateTargetingValue
+    inArray: inArray
 };

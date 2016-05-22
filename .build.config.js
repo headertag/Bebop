@@ -49,26 +49,34 @@ module.exports.jshint = {
 module.exports.devBuild = {
     browserify: {
         insetGlobals:   true,
-        debug:          false
+        debug:          false,
+        entries:        ['./tmp/main.js']
     },
     metaScript: {
-        ASSERT_TYPE:    true,
-        DEBUG:          true
+        ENFORCE_TYPE:   true,
+        DEBUG_INFO:     true,
+        DEBUG_WARN:     true,
+        DEBUG_ERROR:    true,
     }
 };
 
 module.exports.prodBuild = {
     browserify: {
         insetGlobals:   true,
-        debug:          false
+        debug:          false,
+        entries:        ['./tmp/main.js']
     },
     metaScript: {
-        ASSERT_TYPE:    false,
-        DEBUG:          false
+        ENFORCE_TYPE:   false,
+        DEBUG_INFO:     false,
+        DEBUG_WARN:     false,
+        DEBUG_ERROR:    true,
     }
 };
 
 module.exports.buildDir = './final/';
+
+module.exports.tmp = './tmp/';
 
 module.exports.buildName = 'bebop';
 
