@@ -73,7 +73,7 @@ function HeadertagSettings(enabled, reference) {
     }
 
     /**
-     * @return {Array.<string>} An array of errors or a 0 length array when no errors have occured.
+     * @return {Array.<string>} An array of errors or a 0 length array when no errors have occurred.
      */
     this.errors = function () {
         return errors;
@@ -102,7 +102,7 @@ function HeadertagSettings(enabled, reference) {
  * GPTSettings is not part of the public Bebop API.
  *
  * @class
- * @param {boolean} [disableInitalLoad=false] - True if the page's GPT Setup disables the inital load.
+ * @param {boolean} [disableInitalLoad=false] - True if the page's GPT Setup disables the initial load.
  * @param {boolean} [loadTag=false] - True if Bebop is to load {@link Googletag}.
  */
 function GPTSettings(disableInitalLoad, loadTag) {
@@ -129,14 +129,14 @@ function GPTSettings(disableInitalLoad, loadTag) {
     }
 
     /**
-     * @return {Array.<string>} An array of errors or a 0 length array when no errors have occured.
+     * @return {Array.<string>} An array of errors or a 0 length array when no errors have occurred.
      */
     this.errors = function () {
         return errors;
     };
 
     /**
-     * @return {boolean} True if the page's GPT Setup disables the inital load.
+     * @return {boolean} True if the page's GPT Setup disables the initial load.
      * @throws If the {@link GPTConfig} object is invalid
      */
     this.disableInitalLoad = function () {
@@ -200,34 +200,34 @@ function ViewPortSettings(vpsConfig) {
     }
 
     /**
-     * @return {Array.<string>} An array of errors or a 0 length array when no errors have occured.
+     * @return {Array.<string>} An array of errors or a 0 length array when no errors have occurred.
      */
     this.errors = function () {
         return errors;
     };
 
     /**
-     * Finds the active size catagory.
+     * Finds the active size category.
      *
-     * @return {string} The active size catagory
-     * @throws If the {@link ViewPortConfig} object is invalid
+     * @return {string} The active size category.
+     * @throws If the {@link ViewPortConfig} object is invalid.
      */
-    this.viewCatagory = function () {
-        var width, sizeCatagory;
+    this.viewCategory = function () {
+        var width, sizeCategory;
 
         errorCheck(errors);
 
         width = this.viewPortSize();
-        sizeCatagory = util.foreachProp(viewCatagories, function (catagory, size) {
+        sizeCategory = util.foreachProp(viewCatagories, function (category, size) {
             if (width >= size) {
-                return catagory;
+                return category;
             }
         });
 
-        if (type.isUndef(sizeCatagory)) {
+        if (type.isUndef(sizeCategory)) {
             return null;
         }
-        return sizeCatagory;
+        return sizeCategory;
     };
 
     /**
@@ -280,7 +280,7 @@ function BebopSettings(headertagSettings, gptSettings, viewPortSettings) {
     /**
      * Reports on all errors from headertagSettings, gptSettings and viewPortSettings.
      *
-     * @return {Array.<string>} An array of erros or a 0 length array when no errors have occured.
+     * @return {Array.<string>} An array of errors or a 0 length array when no errors have occurred.
      */
     this.errors = function () {
         return errors;
@@ -342,38 +342,38 @@ function SlotSettings(slotConfig) {
 
         if (slotConfig.interstitial) {
             if (!type.isArray(slotConfig.viewPortSizes)) {
-                errors.push('viewPortSizes must be an array of catagories for interstitial slots');
+                errors.push('viewPortSizes must be an array of categories for interstitial slots');
             }
             else {
                 isValidViewPortSizes = false;
-                util.foreach(viewPortSizes, function (catagory) {
-                    if (util.inArray(catagory, slotConfig.viewPortSizes)) {
+                util.foreach(viewPortSizes, function (category) {
+                    if (util.inArray(category, slotConfig.viewPortSizes)) {
                         isValidViewPortSizes = true;
                     }
                     else {
-                        warnings.push('Slot is not configured for size catagory ' + catagory);
+                        warnings.push('Slot is not configured for size category ' + category);
                     }
                 });
 
                 if (!isValidViewPortSizes) {
-                    errors.push('At lease one size catagory is require in viewPortSizes');
+                    errors.push('At lease one size category is require in viewPortSizes');
                 }
             }
         }
 
         if (!slotConfig.interstitial) {
             if (!type.isObj(slotConfig.viewPortSizes)) {
-                errors.push('viewPortSizes must be an object mapping size catagories to slot dimensions');
+                errors.push('viewPortSizes must be an object mapping size categories to slot dimensions');
             }
             else {
                 isValidViewPortSizes = false;
-                util.foreachProp(slotConfig.viewPortSizes, function (catagory, sizes) {
+                util.foreachProp(slotConfig.viewPortSizes, function (category, sizes) {
 
-                    if (util.inArray(catagory, viewPortSizes)) {
+                    if (util.inArray(category, viewPortSizes)) {
                         isValidViewPortSizes = true;
                     }
                     else {
-                        warnings.push('Slot viewPortSizes contains unkown size catagory ' + catagory);
+                        warnings.push('Slot viewPortSizes contains unknown size category ' + category);
                     }
 
                     if (!validation.isMultiSizeArray(sizes) && !validation.isSingleSizeArray(sizes)) {
@@ -382,7 +382,7 @@ function SlotSettings(slotConfig) {
                 });
 
                 if (!isValidViewPortSizes) {
-                    errors.push('At lease one size catagory is require in viewPortSizes');
+                    errors.push('At lease one size category is require in viewPortSizes');
                 }
             }
         }
@@ -392,14 +392,14 @@ function SlotSettings(slotConfig) {
     }
 
     /**
-     * @return {Array.<string>} An array of errors or a 0 length array when no errors have occured.
+     * @return {Array.<string>} An array of errors or a 0 length array when no errors have occurred.
      */
     this.errors = function () {
         return errors;
     };
 
     /**
-     * @return {Array.<string>} An array of warnings or a 0 length array when no warnings have occured.
+     * @return {Array.<string>} An array of warnings or a 0 length array when no warnings have occurred.
      */
     this.warnings = function () {
         return warnings;
@@ -415,16 +415,16 @@ function SlotSettings(slotConfig) {
     };
 
     /**
-     * @return {(SingleSize|MultiSize)} The slot sizes from `catagory` {@link SizeCatagoryMap}
+     * @return {(SingleSize|MultiSize)} The slot sizes from `category` {@link SizeCategoryMap}
      * @throws If the {@link SlotConfig} object is invalid.
      */
-    this.viewPortSizes = function viewPortSizes(catagory) {
+    this.viewPortSizes = function viewPortSizes(category) {
         errorCheck(errors);
-        return slotConfig.viewPortSizes[catagory] || [];
+        return slotConfig.viewPortSizes[category] || [];
     };
 
     /**
-     * @return {SizeCatagoryMap}
+     * @return {SizeCategoryMap}
      * @throws If the {@link SlotConfig} object is invalid.
      */
     this.sizeCatagories = function sizeCatagories() {

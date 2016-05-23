@@ -7,13 +7,13 @@
  * API. When Bebop loads the first thing it will do is load its
  * configuration by reading window.bebopConfig. The seconds
  * thing it will do is run all the functions stored in the queue.
- * It reads and executes function from begining to end the end of
+ * It reads and executes function from beginning to end the end of
  * the queue. It is safe, however, unadvised to add functions to the
  * queue while it is being executed.
  *
  * @typedef {(Object|Array.<BebopQueueCallback>)} bebopQueue
  *
- * @property {function} push - Will throw an error if the paramater passed to push is not a function.
+ * @property {function} push - Will throw an error if the parameter passed to push is not a function.
  *
  * @example
  * window.bebopQueue = window.bebopQueue || [];

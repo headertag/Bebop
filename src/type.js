@@ -139,7 +139,7 @@ function isUndef(test) {
     return type(test) === 'undefined';
 }
 
-// just for completness
+// just for completeness
 /**
  * @param {any} test The value to be tested.
  *

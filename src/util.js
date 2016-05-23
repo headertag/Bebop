@@ -38,8 +38,8 @@ function isEmptyObject(object) {
  */
 function hasProp(object, property, checkParents) {
 
-    // object properties can be initalized with numbers
-    // like {Infinity:1}, {0:1} and even {1.1:1}, negitive leterals are not allowed
+    // object properties can be initialized with numbers
+    // like {Infinity:1}, {0:1} and even {1.1:1}, negative literals are not allowed
 
     //? ASSERT_TYPE('object', "'object'");
     //? ASSERT_TYPE('property', "['string', 'number']");
@@ -66,9 +66,9 @@ function hasProp(object, property, checkParents) {
  * false only iterate over properties in object.
  *
  * @example
- * var sizeCatagory = util.foreachProp(viewCatagories, function (catagory, size) {
+ * var sizeCategory = util.foreachProp(viewCatagories, function (category, size) {
  *     if (768 >= size) {
- *         return catagory;
+ *         return category;
  *     }
  * });
  */
@@ -96,7 +96,7 @@ function foreachProp(object, callback, thisArg, checkParents) {
  * Iterates over each entry in an array
  *
  * The callback may return any value besides undefined, if this happens
- * foreach will stop iterating over the array and return that value.
+ * for each will stop iterating over the array and return that value.
  *
  * @param {Array.<*>} array
  * @param {foreachCallback} callback This function will be called for each element of the array.
@@ -125,22 +125,22 @@ function foreach(array, callback, thisArg) {
 }
 
 /**
- * Returns trus if needle is in haystack. All equality comparisons are done with ===
+ * Returns true if needle is in haystack. All equality comparisons are done with ===
  *
  * @param {*} needle The value to search for.
  * @param {Array.<*>} haystack The array to search in.
- * @return {boolean} true if needle is in heystack, false otherwise
+ * @return {boolean} true if needle is in haystack, false otherwise
  */
-function inArray(needle, heystack) {
-    //? ASSERT_TYPE('heystack', "'array'");
+function inArray(needle, haystack) {
+    //? ASSERT_TYPE('haystack', "'array'");
 
     var ret;
 
-    if (type.isFunc(heystack.indexOf) && !type.isUndef(needle)) {
-        return heystack.indexOf(needle) > -1;
+    if (type.isFunc(haystack.indexOf) && !type.isUndef(needle)) {
+        return haystack.indexOf(needle) > -1;
     }
 
-    ret = foreach(heystack, function (e) {
+    ret = foreach(haystack, function (e) {
         if (e === needle) {
             return true;
         }

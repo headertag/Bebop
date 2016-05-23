@@ -76,7 +76,7 @@ function Slot(gptHandler, slotConfig, viewPortCfg) {
         this.defineSlot();
     }
 
-    //? LOG_WARN("'No size configured for catagory: ' + this.private.viewPortCfg.viewCatagory() + ' for slot with id: ' + this.getGPTDivId()", "!this.isActive()");
+    //? LOG_WARN("'No size configured for category: ' + this.private.viewPortCfg.viewCategory() + ' for slot with id: ' + this.getGPTDivId()", "!this.isActive()");
 }
 
 /**
@@ -112,31 +112,31 @@ Slot.prototype.getAdUnitPath = function () {
 };
 
 /**
- * @return {SizeCatagoryMap} All catagories and sizes.
+ * @return {SizeCategoryMap} All categories and sizes.
  */
 Slot.prototype.getCatagories = function () {
     return this.private.cfg.sizeCatagories();
 };
 
 /**
- * Returns the ad sizes for the catagory the page is currently in
+ * Returns the ad sizes for the category the page is currently in
  *
- * Forexample if the page is in large mode, this method will
- * return the sizes for the large catagory.
+ * For example if the page is in large mode, this method will
+ * return the sizes for the large category.
  *
  * @return {Array.<Array.<number>>}
  */
 Slot.prototype.getSizes = function () {
-    var catagory;
+    var category;
     if (this.isInterstitial()) {
         return [];
     }
-    catagory = this.private.viewPortCfg.viewCatagory();
-    return this.private.cfg.viewPortSizes(catagory) || [];
+    category = this.private.viewPortCfg.viewCategory();
+    return this.private.cfg.viewPortSizes(category) || [];
 };
 
 /**
- * @return {GPTDivId} Returns the div id the slot is assosiated with.
+ * @return {GPTDivId} Returns the div id the slot is associated with.
  */
 Slot.prototype.getGPTDivId = function () {
     return this.private.cfg.gptDivId();
@@ -164,14 +164,14 @@ Slot.prototype.defineOnDisplay = function () {
 };
 
 /**
- * A slot is active if the slot is configued for use in the current page mode.
+ * A slot is active if the slot is configured for use in the current page mode.
  *
  * @return {boolean} True if the slot is active, false otherwise.
  */
 Slot.prototype.isActive = function () {
-    var catagory = this.private.viewPortCfg.viewCatagory();
+    var category = this.private.viewPortCfg.viewCategory();
     return (
-        (this.isInterstitial() && util.inArray(catagory, this.getCatagories())) ||
+        (this.isInterstitial() && util.inArray(category, this.getCatagories())) ||
         (this.getSizes().length > 0)
     );
 };

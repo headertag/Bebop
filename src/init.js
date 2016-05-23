@@ -19,7 +19,7 @@ var GPTHandler = require('./gpthandler'),
     type = require('./type'),
 // Module Level Variables
     asyncErrorMsg = 'BebopConfig has not yet been passed to Bebop, when loading both Bebop and ' +
-                    'BebopConfig asynchronously window.bebopQueue.unshit(callback) must be used. ' +
+                    'BebopConfig asynchronously window.bebopQueue.unshift(callback) must be used. ' +
                     'the callback must return the BebopConfig object';
 
 function init(window) {

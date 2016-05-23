@@ -10,11 +10,11 @@
  */
 
 /**
- * A function to be called for each elemnt in an annya.
+ * A function to be called for each element in an array.
  *
  * @callback foreachCallback
  * @param {*} value The value of the entry being iterated over.
- * @param {number} index the oridinal position in the array
+ * @param {number} index the ordinal position in the array
  *
  * @return {(*|undefined)}
  */
@@ -27,7 +27,7 @@
  */
 
 /**
- * Key value pairs of targeting that is applyed to the underlining {@link GPTSlot}
+ * Key value pairs of targeting that is applied to the underlining {@link GPTSlot}
  *
  * @typedef {Object} TargetingMap
  */
@@ -58,14 +58,14 @@
 
 /**
  * @callback GPTCallback
- * @param {GPTHandler} self - A refernce to the GPTHandler object
+ * @param {GPTHandler} self - A reference to the GPTHandler object
  * @param {Object} tag - If headertag is enabled tag will be a reference to headertag, else it will reference {@link Googletag}
  */
 
 /**
- * A SizeCatagoryMap represents the sizes of a slot for 1 or more catagories
+ * A SizeCategoryMap represents the sizes of a slot for 1 or more categories
  *
- * @typedef {Object} SizeCatagoryMap
+ * @typedef {Object} SizeCategoryMap
  * @property {(SingleSize|MultipleSize)} huge - The size(s) to be applied to this slot.
  * @property {(SingleSize|MultipleSize)} large - The size(s) to be applied to this slot.
  * @property {(SingleSize|MultipleSize)} medium - The size(s) to be applied to this slot.

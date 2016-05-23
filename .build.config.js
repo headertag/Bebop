@@ -9,7 +9,7 @@ module.exports.uglifyOptions = {
         semicolons:     true
     },
     compress: {
-        sequences:      true,   // join consecutive statemets with the "comma operator"
+        sequences:      true,   // join consecutive statements with the "comma operator"
         properties:     true,   // optimize property access: a["foo"]  a.foo
         dead_code:      true,   // discard unreachable code
         drop_debugger:  true,   // discard "debugger" statements
