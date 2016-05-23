@@ -5,7 +5,7 @@
 /**
  * The window.bebopConfig object must exist in global scope before Bebop itself is loaded
  *
- * @typedef {Object} BebopConfig
+ * @class BebopConfig
  *
  * @property {HeadertagConfig?} headertag - If present in the configuration this informs Bebop to pass slot objects to headertag before calling display.
  * @property {GPTConfig?} gpt - This optional parameter informs Bebop of the page's googletag configuration.
@@ -37,7 +37,7 @@
  */
 
 /**
- * @typedef {Object} HeadertagConfig
+ * @class HeadertagConfig
  *
  * @property {boolean} [enabled=true] true if headertag is enabled, false otherwise
  * @property {function} reference A function that returns a reference to headertag
@@ -52,7 +52,7 @@
  */
 
 /**
- * @typedef {Object} GPTConfig
+ * @class GPTConfig
  *
  * @property {boolean} [disableInitalLoad=false] true if the page calls googletag.pubads().disableInitalLoad()
  * @property {boolean} [loadTag=false] true if you wish Bebop to load googletag.
@@ -71,7 +71,7 @@
  *
  * Only one size category is required.
  *
- * @typedef {Object} ViewPortConfig
+ * @class ViewPortConfig
  *
  * @property {function} getViewPortWidth - A function that returns the view port width
  * @property {number?} huge - If the view port width is >= this value, the huge category will be active
@@ -104,12 +104,12 @@
 /**
  * SlotConfig object are what is passed to bebop.defineSlot and bebop.defineSlots
  *
- * @typedef SlotConfig
+ * @class SlotConfig
  *
  * @property {AdUnitPath} adUnitPath - Full path of the ad unit with the network code and unit name.
  * @property {GPTDivId} gptDivId - The ID of a div that is used to render a creative.
  * @property {boolean} [interstitial=false] - True if the slot is an out of page slot.
- * @property {boolean} [laztload=false] - True if the slot is to be lazyloaded.
+ * @property {boolean} [lazyload=false] - True if the slot is to be lazyloaded.
  * @property {boolean} [defineOnDisplay=false] - True if the define call should be delayed until the slot is to be displayed.
  * @property {TargetingMap?} targeting - Key value pairs of targeting that is applied to the slot.
  * @property {(SizeCategoryMap|InterstitalViewPortSizes)} viewPortSizes - If the slot is interstitial you must use the {@link InterstitalViewPortSizes}

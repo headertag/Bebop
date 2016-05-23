@@ -50,7 +50,7 @@ function Bebop(gptHandler, bebopSettings) {
 }
 
 /**
- * @param {Array.<SlotConfig>} slotsConfig
+ * @param {Array.<SlotConfig>} slotsConfig - An array of {@link SlotConfig} objects
  * @return {Array.<Slot>}
  * @throws if slotsConfig is not an array of valid {@link SlotConfig} objects.
  */
@@ -67,7 +67,7 @@ Bebop.prototype.defineSlots = function (slotsConfig) {
 };
 
 /**
- * @param {SlotConfig} slotConfig
+ * @param {SlotConfig} slotConfig - A {@link SlotConfig} object
  * @return {Slot}
  * @throws if slotConfig is not a valid {@link SlotConfig} object
  */

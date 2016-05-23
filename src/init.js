@@ -19,20 +19,29 @@ var GPTHandler = require('./gpthandler'),
     type = require('./type'),
 // Module Level Variables
     asyncErrorMsg = 'BebopConfig has not yet been passed to Bebop, when loading both Bebop and ' +
-                    'BebopConfig asynchronously window.bebopQueue.unshift(callback) must be used. ' +
-                    'the callback must return the BebopConfig object';
+                    'BebopConfig asynchronously window.bebopQueue.unshift(bebopConfig) must be used. ';
 
 function init(window) {
-
+    var bebop;
     if (type.isObj(window.bebopConfig)) {
         //? LOG("'Loaded BebopConfig, proceeding to runQueue'");
-        runQueue(window, createBebop(window, window.bebopConfig));
+        bebop = createBebop(window, window.bebopConfig);
+        runQueue(window.bebopQueue, bebop);
+        transformQueue(window, [], bebop, false);
         return;
     }
 
-    //? LOG_WARN("'window.bebopConfig is not defined, checking fist callback in bebopQueue for BebopConfig'");
+    //? LOG_WARN("'window.bebopConfig is not defined, checking fist element in bebopQueue for BebopConfig'");
 
-    runQueue(window, null, true);
+    if (window.bebopQueue.length > 0 && type.isObj(window.bebopQueue[0])) {
+        bebop = createBebop(window, window.bebopQueue.shift());
+        runQueue(window.bebopQueue, bebop);
+        transformQueue(window, [], bebop, false);
+    }
+    else {
+        //? LOG_WARN("'window.bebopQueue is empty or BebopConfig is not the first element'");
+        transformQueue(window, window.bebopQueue, null, true);
+    }
 }
 
 function createBebop(window, bebopConfig) {
@@ -47,48 +56,44 @@ function createBebop(window, bebopConfig) {
     return new Bebop(gptHandler, bebopSettings);
 }
 
-function runQueue(window, bebop, waitingOnConfig) {
+function runQueue(queue, bebop) {
     var callback;
-
-    waitingOnConfig = type.isBool(waitingOnConfig) ?  waitingOnConfig : false;
-
-    validation.enforceType(window.bebopQueue, 'array');
-
-    while (window.bebopQueue.length > 0) {
-
-        callback = window.bebopQueue.shift();
+    while (queue.length > 0) {
+        callback = queue.shift();
         validation.enforceType(callback, 'function');
+        callback(bebop);
+    }
+}
 
+function BebopQueue(window, queue, bebop, waitingOnConfig) {
+    var self = this;
+
+    this.push = function push(callback) {
+        validation.enforceType(callback, 'function');
         if (waitingOnConfig) {
-            waitingOnConfig = false;
-            bebop = createBebop(window, callback());
+            //? LOG_WARN("'delaying execution as BebopConfig has not been passed to window.bebopQueue.unshift'");
+            queue.push(callback);
         }
         else {
             callback(bebop);
         }
-    }
-
-    window.bebopQueue = {
-
-        push: function (callback) {
-            if (waitingOnConfig) {
-                throw new Error(asyncErrorMsg);
-            }
-            validation.enforceType(callback, 'function');
-            callback(bebop);
-        },
-
-        unshift: function (callback) {
-            validation.enforceType(callback, 'function');
-            if (waitingOnConfig) {
-                waitingOnConfig = false;
-                bebop = createBebop(window, callback());
-            }
-            else {
-                window.bebopQueue.push(callback);
-            }
-        }
     };
+
+    this.unshift = function unshift(bebopConfig) {
+        if (!waitingOnConfig) {
+            return;
+        }
+        validation.enforceType(bebopConfig, 'object');
+        bebop = createBebop(window, bebopConfig);
+        waitingOnConfig = false;
+        //? LOG_INFO("'Received BebopConfig Executing All Callbacks in window.bebopQueue'");
+        console.log(queue);
+        runQueue(queue, bebop);
+    };
+}
+
+function transformQueue(window, queue, bebop, waitingOnConfig) {
+    window.bebopQueue = new BebopQueue(window, queue, bebop, waitingOnConfig);
 }
 
 module.exports = init;

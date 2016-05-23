@@ -22,13 +22,14 @@ var util = require('./util'),
  *
  * @param {GPTHandler} gptHandler
  * @param {Object} slotConfig
- * @param {ViewPortConfig} viewPortCfg
+ * @param {ViewPortSettings} viewPortSettings
  */
 function Slot(gptHandler, slotConfig, viewPortCfg) {
     var self = this;
 
     validation.enforceType(gptHandler, 'object');
     validation.enforceType(slotConfig, 'object');
+    // TODO: rename viewPortCfg to viewPortSettings
     validation.enforceType(viewPortCfg, 'object');
 
     /**
