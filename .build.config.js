@@ -83,3 +83,15 @@ module.exports.buildName = 'bebop';
 module.exports.entryPoint = './src/main.js';
 
 module.exports.srcDir = './src/**/*.js';
+
+module.exports.testDir = 'tests';
+
+module.exports.testFiles = '/**/*\.test\.js';
+
+module.exports.banner = ['/**',
+        ' * <%= pkg.name %> - <%= pkg.description %>',
+        ' * @version v<%= pkg.version %>',
+        ' */',
+        ''].join('\n');
+
+module.exports.licenceFile = './LICENCE';

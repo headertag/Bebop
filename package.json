@@ -7,12 +7,13 @@
     "doc": "./node_modules/.bin/jsdoc -d ./docs -c ./jsdoc.conf.json -R ./doc_tmpl/home.md -P ./package.json"
   },
   "author": "Michael Robb <michael.robb@indexexchange.com>",
-  "license": "",
+  "license": "Index Exchange All Rights Reserved",
   "devDependencies": {
     "browserify": "^13.0.1",
     "del": "^2.2.0",
     "gulp": "^3.9.1",
     "gulp-batch": "^1.0.5",
+    "gulp-header": "^1.8.2",
     "gulp-jscs": "^3.0.2",
     "gulp-jshint": "^2.0.0",
     "gulp-metascript": "0.0.3",
@@ -30,5 +31,10 @@
   },
   "dependencies": {
     "gulp-browser-compat": "git+ssh://git@gitlab.internal.casalemedia.com:michael.robb/gulp-browser-compat.git"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://gitlab.internal.casalemedia.com/michael.robb/bebop",
+    "issues": "http://gitlab.internal.casalemedia.com/michael.robb/bebop/issues"
   }
 }

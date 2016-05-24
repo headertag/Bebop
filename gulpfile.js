@@ -15,6 +15,17 @@ var browserify  = require('browserify');
 var source      = require('vinyl-source-stream');
 var buffer      = require('vinyl-buffer');
 
+// LICENCE COMMENT
+var header      = require('gulp-header');
+var fs          = require('fs');
+var licence     = fs.readFileSync(buildConfig.licenceFile);
+
+// LIBRARY INFO COMMENT
+var pkgInfo     = {
+    pkg: require('./package.json')
+};
+
+
 // Web Server
 var webserver   = require('gulp-webserver');
 
@@ -37,9 +48,11 @@ function build(options) {
         .bundle()
         .pipe(source(buildConfig.buildName + '.js'))
         .pipe(buffer())
+        .pipe(header(licence + buildConfig.banner, pkgInfo))
         .pipe(gulp.dest(buildConfig.buildDir))
         .pipe(uglify(buildConfig.uglifyOptions))
         .pipe(rename(buildConfig.buildName + '.min.js'))
+        .pipe(header(licence + buildConfig.banner, pkgInfo))
         .pipe(gulp.dest(buildConfig.buildDir));
 }
 
@@ -78,7 +91,7 @@ gulp.task('watch', function () {
 
 // Code Quality Tasks
 gulp.task('lint', function () {
-    return gulp.src(['./src/**/*.js'])
+    return gulp.src([buildConfig.srcDir])
         .pipe(jshint(buildConfig.jshint))
         .pipe(jshint.reporter(reporter))
         .pipe(jscs())
@@ -94,10 +107,8 @@ gulp.task('compat', ['prod-build'], function () {
 gulp.task('test', function () {
     var jasmine = new Jasmine();
     jasmine.loadConfig({
-        spec_dir: 'tests',
-        spec_files: [
-            '/**/*\.test\.js',
-        ]
+        spec_dir: buildConfig.testDir,
+        spec_files: [buildConfig.testFiles]
     });
     jasmine.execute();
 });
