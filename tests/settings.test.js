@@ -37,8 +37,6 @@ describe('settings Test Suite', function () {
         }
     };
 
-    var vpsSettings;
-
     describe('HeadertagSettings Tests', function () {
 
         it('No parameters', function () {
@@ -121,8 +119,179 @@ describe('settings Test Suite', function () {
 
     describe('ViewPortSettings Tests', function () {
 
-        it('Passing similar params as in validation.createSquib', function () {
-            vpsSettings = new settings.ViewPortSettings(standardBebopConfig.viewPortSizes);
+        it('No parameters', function () {
+            var vpSettings = new settings.ViewPortSettings();
+            expect(function () { vpSettings.viewCatagories() }).toThrow();
+            expect(function () { vpSettings.viewCategory() }).toThrow();
+            expect(function () { vpSettings.viewPortSize() }).toThrow();
+        });
+
+        it('Parameter is of wrong type', function () {
+            var vpSettings = new settings.ViewPortSettings([
+                {getViewPortWidth: function () { return 320 }},
+                {'large' : 768},
+                {'medium' : 0}
+            ]);
+            expect(function () { vpSettings.viewCatagories() }).toThrow();
+            expect(function () { vpSettings.viewCategory() }).toThrow();
+            expect(function () { vpSettings.viewPortSize() }).toThrow();
+        });
+
+        it('Passing in no sizes', function () {
+            var vpSettings = new settings.ViewPortSettings({
+                getViewPortWidth: function () { return 768 }
+            });
+            expect(function () { vpSettings.viewCatagories() }).toThrow();
+            expect(function () { vpSettings.viewCategory() }).toThrow();
+            expect(function () { vpSettings.viewPortSize() }).toThrow();
+        });
+
+        it('Passing in no getViewPortWidth function', function () {
+            var vpSettings = new settings.ViewPortSettings({
+                'large' : 768,
+                'medium' : 0
+            });
+            expect(function () { vpSettings.viewCatagories() }).toThrow();
+            expect(function () { vpSettings.viewCategory() }).toThrow();
+            expect(function () { vpSettings.viewPortSize() }).toThrow();
+        });
+
+        it('viewCatagories: all valid categories', function () {
+            var vpSettings = new settings.ViewPortSettings({
+                'huge': 1200,
+                'large' : 800,
+                'medium' : 600,
+                'small': 400,
+                'tiny': 0,
+                getViewPortWidth: function () { return 320 }
+            });
+            expect(vpSettings.viewCatagories()).toEqual({
+                'huge': 1200,
+                'large' : 800,
+                'medium' : 600,
+                'small': 400,
+                'tiny': 0
+            });
+        });
+
+        it('viewCatagories: invalid categories', function () {
+            var vpSettings = new settings.ViewPortSettings({
+                'gigantic': 1200,
+                'grand' : 800,
+                'moderate' : 600,
+                'little': 400,
+                'teensy': 0,
+                getViewPortWidth: function () { return 320 }
+            });
+            expect(function () { vpSettings.viewCatagories() }).toThrow();
+            expect(function () { vpSettings.viewCategory() }).toThrow();
+            expect(function () { vpSettings.viewPortSize() }).toThrow();
+        });
+
+        it('viewCatagories: mix of valid and invalid categories', function () {
+            var vpSettings = new settings.ViewPortSettings({
+                'gigantic': 1200,
+                'large' : 800,
+                'moderate' : 600,
+                'small': 400,
+                'teensy': 0,
+                getViewPortWidth: function () { return 320 }
+            });
+            expect(vpSettings.viewCatagories()).toEqual({
+                'large' : 800,
+                'small': 400
+            });
+        });
+
+        it('viewCategory + viewPortSize: getViewPortWidth is less than all defined category sizes', function () {
+            pending('Fix settings logic in one of two ways (see test code comments)');
+            var vpSettings = new settings.ViewPortSettings({
+                'huge': 1200,
+                'large' : 800,
+                'medium' : 600,
+                'small': 400,
+                'tiny': 200,
+                getViewPortWidth: function () { return 199 }
+            });
+            // Currently, vpSettings.viewCategory() returns null (and I don't think this makes sense)
+            // TODO Fix settings logic in one of two ways
+            // 1. Always return a category by returning the smallest category in this case
+            expect(vpSettings.viewCategory()).toBe('tiny');
+            // 2. Mark the configuration as invalid since the smallest defined category is not of size 0
+            // expect(function () { vpSettings.viewCategory() }).toThrow();
+            expect(vpSettings.viewPortSize()).toBe(199);
+        });
+
+        it('viewCategory + viewPortSize: getViewPortWidth is less than a defined category size', function () {
+            var vpSettings = new settings.ViewPortSettings({
+                'huge': 1200,
+                'large' : 800,
+                'medium' : 600,
+                'small': 400,
+                'tiny': 200,
+                getViewPortWidth: function () { return 399 }
+            });
+            expect(vpSettings.viewCategory()).toBe('tiny');
+            expect(vpSettings.viewPortSize()).toBe(399);
+        });
+
+        it('viewCategory + viewPortSize: getViewPortWidth is equal to a defined category size', function () {
+            var vpSettings = new settings.ViewPortSettings({
+                'huge': 1200,
+                'large' : 800,
+                'medium' : 600,
+                'small': 400,
+                'tiny': 200,
+                getViewPortWidth: function () { return 400 }
+            });
+            expect(vpSettings.viewCategory()).toBe('small');
+            expect(vpSettings.viewPortSize()).toBe(400);
+        });
+
+        it('viewCategory + viewPortSize: getViewPortWidth is equal to multiple defined category sizes', function () {
+            var vpSettings = new settings.ViewPortSettings({
+                'huge': 1200,
+                'large' : 800,
+                'medium' : 600,
+                'small': 600,
+                'tiny': 200,
+                getViewPortWidth: function () { return 600 }
+            });
+            expect(vpSettings.viewCatagories()).toEqual({
+                'huge': 1200,
+                'large' : 800,
+                'medium' : 600,
+                'small': 600,
+                'tiny': 200
+            });
+            expect(vpSettings.viewCategory()).toBe('medium');
+            expect(vpSettings.viewPortSize()).toBe(600);
+        });
+
+        it('viewCategory + viewPortSize: getViewPortWidth is larger than a defined category size', function () {
+            var vpSettings = new settings.ViewPortSettings({
+                'huge': 1200,
+                'large' : 800,
+                'medium' : 600,
+                'small': 400,
+                'tiny': 200,
+                getViewPortWidth: function () { return 401 }
+            });
+            expect(vpSettings.viewCategory()).toBe('small');
+            expect(vpSettings.viewPortSize()).toBe(401);
+        });
+
+        it('viewCategory + viewPortSize: getViewPortWidth is larger than all defined category sizes', function () {
+            var vpSettings = new settings.ViewPortSettings({
+                'huge': 1200,
+                'large' : 800,
+                'medium' : 600,
+                'small': 400,
+                'tiny': 200,
+                getViewPortWidth: function () { return 1201 }
+            });
+            expect(vpSettings.viewCategory()).toBe('huge');
+            expect(vpSettings.viewPortSize()).toBe(1201);
         });
 
     });
