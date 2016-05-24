@@ -37,42 +37,105 @@ describe('settings Test Suite', function () {
         }
     };
 
-    var htSettings,
-        gptSettings,
-        vpsSettings;
+    var vpsSettings;
 
-    // I've started by creating nested suites for each of the exposed functions
     describe('HeadertagSettings Tests', function () {
-        it('No params', function () {
-            htSettings = new settings.HeadertagSettings();
+
+        it('No parameters', function () {
+            var htSettings = new settings.HeadertagSettings();
+            expect(htSettings.enabled()).toBe(false);
+            expect(htSettings.reference()).toBe(undefined);
         });
 
-        it('Passing similar params as in validation.createSquib', function () {
-            htSettings = new settings.HeadertagSettings(standardBebopConfig.headertag.enabled, standardBebopConfig.headertag.reference);
+        it('Parameters are of wrong type', function () {
+            var htSettings = new settings.HeadertagSettings("false", "reference");
+            expect(function () { htSettings.enabled(); }).toThrow();
+            expect(function () { htSettings.reference(); }).toThrow();
         });
+
+        it('Passing in enabled as false', function () {
+            var htSettings = new settings.HeadertagSettings(false);
+            expect(htSettings.enabled()).toBe(false);
+            expect(htSettings.reference()).toBe(undefined);
+        });
+
+        it('Enabled with no reference', function () {
+            var htSettings = new settings.HeadertagSettings(true);
+            expect(function () { htSettings.enabled() }).toThrow();
+            expect(function () { htSettings.reference() }).toThrow();
+        });
+
+        it('Passing in reference', function () {
+            var htSettings = new settings.HeadertagSettings(undefined, function () { return { obj: true }; });
+            expect(htSettings.enabled()).toBe(false);
+            expect(htSettings.reference()).toEqual({ obj: true });
+        });
+
+        it('Passing in both parameters', function () {
+            var htSettings = new settings.HeadertagSettings(true, function () { return "String"; });
+            expect(htSettings.enabled()).toBe(true);
+            expect(htSettings.reference()).toBe("String");
+        });
+
     });
 
     describe('GPTSettings Tests', function () {
-        it('No params', function () {
-            gptSettings = new settings.GPTSettings();
+
+        it('No parameters', function () {
+            var gptSettings = new settings.GPTSettings();
+            expect(gptSettings.disableInitalLoad()).toBe(false);
+            expect(gptSettings.loadTag()).toBe(false);
         });
 
-        it('Passing similar params as in validation.createSquib', function () {
-            gptSettings = new settings.GPTSettings(standardBebopConfig.gpt.disableInitalLoad, standardBebopConfig.gpt.loadTag);
+        it('Parameters are of wrong type', function () {
+            var gptSettings = new settings.GPTSettings("true", "true");
+            expect(function () { gptSettings.disableInitalLoad() }).toThrow();
+            expect(function () { gptSettings.loadTag() }).toThrow();
         });
+
+        it('Passing in disableInitalLoad', function () {
+            var gptSettings = new settings.GPTSettings(true);
+            expect(gptSettings.disableInitalLoad()).toBe(true);
+            expect(gptSettings.loadTag()).toBe(false);
+        });
+
+        it('Passing in loadTag', function () {
+            var gptSettings = new settings.GPTSettings(undefined, true);
+            expect(gptSettings.disableInitalLoad()).toBe(false);
+            expect(gptSettings.loadTag()).toBe(true);
+        });
+
+        it('Passing in both parameters as false', function () {
+            var gptSettings = new settings.GPTSettings(false, false);
+            expect(gptSettings.disableInitalLoad()).toBe(false);
+            expect(gptSettings.loadTag()).toBe(false);
+        });
+
+        it('Passing in both parameters as true', function () {
+            var gptSettings = new settings.GPTSettings(true, true);
+            expect(gptSettings.disableInitalLoad()).toBe(true);
+            expect(gptSettings.loadTag()).toBe(true);
+        });
+
     });
 
     describe('ViewPortSettings Tests', function () {
+
         it('Passing similar params as in validation.createSquib', function () {
             vpsSettings = new settings.ViewPortSettings(standardBebopConfig.viewPortSizes);
         });
+
     });
 
     describe('BebopConfig Tests', function () {
         it('Passing similar params as in validation.createSquib', function () {
             // Can I re-use the config objects created above?
-            var finalConfig = new settings.BebopSettings(htSettings, gptSettings, vpsSettings),
-            errors = finalConfig.errors();
+            var finalConfig = new settings.BebopSettings(
+                new settings.HeadertagSettings(),
+                new settings.GPTSettings(),
+                new settings.ViewPortSettings(standardBebopConfig.viewPortSizes)
+            ),
+                errors = finalConfig.errors();
             expect(errors.length).toEqual(0);
         });
     });

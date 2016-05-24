@@ -371,6 +371,11 @@ describe('Slot Test Suite', function () {
                 "pos": "right3"
             });
 
+            expect(function () {slot.clearTargeting(false);}).toThrow();
+            expect(slot.getTargeting()).toEqual({
+                "pos": "right3"
+            });
+
             expect(function () {slot.clearTargeting(777);}).toThrow();
             expect(slot.getTargeting()).toEqual({
                 "pos": "right3"
