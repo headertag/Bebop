@@ -293,27 +293,128 @@ describe('settings Test Suite', function () {
 
     describe('SlotSettings Tests', function () {
 
-        // Common setup for "Targeting" tests
-        function targetingTestSetup(targetingParams) {
+        // The next few function all fill the purpose of returning a
+        // config with the missing value being filled in by the parameter
+        function gptDivIdTestSetup(divIDValue) {
             return {
-                gptDivId: "dfp-ad-lazyload",
+                gptDivId: divIDValue,
                 adUnitPath: "/62650033/desktop-uk",
-                targeting: targetingParams,
+                targeting: {"key": "value"},
                 lazyload: true,
-                defineOnDisplay: true, // Makes GPT slot not get defined, which changes the way targeting is fetched
+                defineOnDisplay: true,
                 viewPortSizes: {
                     medium: [ [300, 250] ]
                 }
             };
         }
 
-        it('targeting: no targeting', function () {
-            var slotConfig1 = targetingTestSetup(undefined),
-                slotSettings1 = new settings.SlotSettings(slotConfig1);
-            expect(slotSettings1.targeting()).toEqual(undefined);
-            var slotConfig2 = targetingTestSetup({}),
-                slotSettings2 = new settings.SlotSettings(slotConfig2);
-            expect(slotSettings2.targeting()).toEqual({});
+        function adUnitPathTestSetup(adUnitPathValue) {
+            return {
+                gptDivId: "dfp-ad-lazyload",
+                adUnitPath: adUnitPathValue,
+                targeting: {"key": "value"},
+                lazyload: true,
+                defineOnDisplay: true,
+                viewPortSizes: {
+                    medium: [ [300, 250] ]
+                }
+            };
+        }
+
+        function targetingTestSetup(targetingValue) {
+            return {
+                gptDivId: "dfp-ad-lazyload",
+                adUnitPath: "/62650033/desktop-uk",
+                targeting: targetingValue,
+                lazyload: true,
+                defineOnDisplay: true,
+                viewPortSizes: {
+                    medium: [ [300, 250] ]
+                }
+            };
+        }
+
+        function lazyloadTestSetup(lazyloadValue) {
+            return {
+                gptDivId: "dfp-ad-lazyload",
+                adUnitPath: "/62650033/desktop-uk",
+                targeting: {"key": "value"},
+                lazyload: lazyloadValue,
+                defineOnDisplay: true,
+                viewPortSizes: {
+                    medium: [ [300, 250] ]
+                }
+            };
+        }
+
+        function defineOnDisplayTestSetup(defineOnDisplayValue) {
+            return {
+                gptDivId: "dfp-ad-lazyload",
+                adUnitPath: "/62650033/desktop-uk",
+                targeting: {"key": "value"},
+                lazyload: true,
+                defineOnDisplay: defineOnDisplayValue,
+                viewPortSizes: {
+                    medium: [ [300, 250] ]
+                }
+            };
+        }
+
+        function viewPortSizesTestSetup(interstitialValue, viewPortSizesValue) {
+            return {
+                gptDivId: "dfp-ad-lazyload",
+                adUnitPath: "/62650033/desktop-uk",
+                targeting: {"key": "value"},
+                lazyload: true,
+                defineOnDisplay: true,
+                interstitial: interstitialValue,
+                viewPortSizes: viewPortSizesValue
+            };
+        }
+
+        it('gptDivID: undefined', function () {
+            var slotConfig = gptDivIdTestSetup(undefined);
+            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+        });
+
+        it('gptDivID: empty', function () {
+            var slotConfig = gptDivIdTestSetup('');
+            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+        });
+
+        it('gptDivID: non-empty', function () {
+            var slotConfig = gptDivIdTestSetup('dfp-ad-lazyload'),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.gptDivId()).toEqual('dfp-ad-lazyload');
+        });
+
+        it('adUnitPath: undefined', function () {
+            var slotConfig = adUnitPathTestSetup(undefined);
+            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+        });
+
+        it('adUnitPath: empty', function () {
+            var slotConfig = adUnitPathTestSetup(''),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.adUnitPath()).toEqual('');
+        });
+
+        it('adUnitPath: non-empty', function () {
+            var slotConfig = adUnitPathTestSetup('/62650033/desktop-uk'),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.adUnitPath()).toEqual('/62650033/desktop-uk');
+        });
+
+        it('targeting: undefined', function () {
+            var slotConfig = targetingTestSetup(undefined),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.targeting()).toEqual(undefined);
+        });
+
+        it('targeting: empty', function () {
+            var slotConfig = targetingTestSetup({}),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.targeting()).toEqual({});
         });
 
         it('setTargeting: value as a boolean', function () {
@@ -354,6 +455,80 @@ describe('settings Test Suite', function () {
         it('targeting: value as an array of strings', function () {
             var slotConfig = targetingTestSetup({"key": ["value", "second"]});
             expect(function () { new settings.createSlotSettings(slotConfig); }).not.toThrow();
+        });
+
+        it('lazyload: undefined', function () {
+            var slotConfig = lazyloadTestSetup(undefined),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.lazyload()).toEqual(false);
+        });
+
+        it('lazyload: true', function () {
+            var slotConfig = lazyloadTestSetup(true),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.lazyload()).toEqual(true);
+        });
+
+        it('lazyload: false', function () {
+            var slotConfig = lazyloadTestSetup(false),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.lazyload()).toEqual(false);
+        });
+
+        it('defineOnDisplay: undefined', function () {
+            var slotConfig = defineOnDisplayTestSetup(undefined),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.defineOnDisplay()).toEqual(false);
+        });
+
+        it('defineOnDisplay: true', function () {
+            var slotConfig = defineOnDisplayTestSetup(true),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.defineOnDisplay()).toEqual(true);
+        });
+
+        it('defineOnDisplay: false', function () {
+            var slotConfig = defineOnDisplayTestSetup(false),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.defineOnDisplay()).toEqual(false);
+        });
+
+        it('viewPortSizes (interstitial): undefined', function () {
+            var slotConfig = viewPortSizesTestSetup(true, undefined);
+            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+        });
+
+        it('viewPortSizes (interstitial): empty array', function () {
+            var slotConfig = viewPortSizesTestSetup(true, []);
+            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+        });
+
+        it('viewPortSizes (interstitial): one incorrect size', function () {
+            var slotConfig = viewPortSizesTestSetup(true, ['gigantic']);
+            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+        });
+
+        it('viewPortSizes (interstitial): many incorrect sizes', function () {
+            var slotConfig = viewPortSizesTestSetup(true, ['teensy', 'gigantic']);
+            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+        });
+
+        it('viewPortSizes (interstitial): one valid size', function () {
+            var slotConfig = viewPortSizesTestSetup(true, ['small']),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.sizeCatagories()).toEqual(['small']);
+        });
+
+        it('viewPortSizes (interstitial): many valid sizes', function () {
+            var slotConfig = viewPortSizesTestSetup(true, ['tiny', 'small', 'medium', 'large', 'huge']),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.sizeCatagories()).toEqual(['tiny', 'small', 'medium', 'large', 'huge']);
+        });
+
+        it('viewPortSizes (interstitial): mix of valid and invalid sizes', function () {
+            var slotConfig = viewPortSizesTestSetup(true, ['teensy', 'small', 'moderate', 'large', 'gigantic']),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.sizeCatagories()).toEqual(['small', 'large']);
         });
 
     });
