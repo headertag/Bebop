@@ -531,6 +531,69 @@ describe('settings Test Suite', function () {
             expect(slotSettings.sizeCatagories()).toEqual(['small', 'large']);
         });
 
+        it('viewPortSizes (non-interstitial): undefined', function () {
+            var slotConfig = viewPortSizesTestSetup(false, undefined);
+            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+        });
+
+        it('viewPortSizes (non-interstitial): empty array', function () {
+            var slotConfig = viewPortSizesTestSetup(false, []);
+            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+        });
+
+        it('viewPortSizes (non-interstitial): one incorrect size', function () {
+            var slotConfig = viewPortSizesTestSetup(false, { gigantic: [ [300, 1050] ] });
+            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+        });
+
+        it('viewPortSizes (non-interstitial): many incorrect sizes', function () {
+            var slotConfig = viewPortSizesTestSetup(false, {
+                teensy: [ [300, 50] ],
+                gigantic: [ [300, 1050] ]
+            });
+            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+        });
+
+        it('viewPortSizes (non-interstitial): one valid size', function () {
+            var slotConfig = viewPortSizesTestSetup(false, { medium: [ [300, 250] ] }),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.viewPortSizes('small')).toEqual([]);
+            expect(slotSettings.viewPortSizes('medium')).toEqual([ [300, 250] ]);
+        });
+
+        it('viewPortSizes (non-interstitial): many valid sizes, multiple width-height values for a given size', function () {
+            var slotConfig = viewPortSizesTestSetup(false, {
+                tiny: [ [300, 50] ],
+                small: [ [300, 50], [320, 50] ],
+                medium: [ [300, 250] ],
+                large: [],
+                huge: [ [300, 1050] ]
+            }),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.viewPortSizes('tiny')).toEqual([ [300, 50] ]);
+            expect(slotSettings.viewPortSizes('small')).toEqual([ [300, 50], [320, 50] ]);
+            expect(slotSettings.viewPortSizes('medium')).toEqual([ [300, 250] ]);
+            expect(slotSettings.viewPortSizes('large')).toEqual([]);
+            expect(slotSettings.viewPortSizes('huge')).toEqual([ [300, 1050] ]);
+        });
+
+        it('viewPortSizes (non-interstitial): mix of valid and invalid sizes', function () {
+            var slotConfig = viewPortSizesTestSetup(false, {
+                    teensy: [ [300, 50] ],
+                    small: [ [300, 50], [320, 50] ],
+                    moderate: [ [300, 250] ],
+                    large: [],
+                    gigantic: [ [300, 1050] ]
+                }),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            // Invalid size categories should have been dropped during SlotSettings creation
+            expect(slotSettings.viewPortSizes('teensy')).toEqual([]);
+            expect(slotSettings.viewPortSizes('small')).toEqual([ [300, 50], [320, 50] ]);
+            expect(slotSettings.viewPortSizes('moderate')).toEqual([]);
+            expect(slotSettings.viewPortSizes('large')).toEqual([]);
+            expect(slotSettings.viewPortSizes('gigantic')).toEqual([]);
+        });
+
     });
 
     describe('BebopConfig Tests', function () {
