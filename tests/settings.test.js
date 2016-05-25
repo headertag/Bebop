@@ -204,7 +204,6 @@ describe('settings Test Suite', function () {
         });
 
         it('viewCategory + viewPortSize: getViewPortWidth is less than all defined category sizes', function () {
-            pending('Fix settings logic in one of two ways (see test code comments)');
             var vpSettings = new settings.ViewPortSettings({
                 'huge': 1200,
                 'large' : 800,
@@ -213,12 +212,8 @@ describe('settings Test Suite', function () {
                 'tiny': 200,
                 getViewPortWidth: function () { return 199 }
             });
-            // Currently, vpSettings.viewCategory() returns null (and I don't think this makes sense)
-            // TODO Fix settings logic in one of two ways
-            // 1. Always return a category by returning the smallest category in this case
+            // Always return a category by returning the smallest category in this case
             expect(vpSettings.viewCategory()).toBe('tiny');
-            // 2. Mark the configuration as invalid since the smallest defined category is not of size 0
-            // expect(function () { vpSettings.viewCategory() }).toThrow();
             expect(vpSettings.viewPortSize()).toBe(199);
         });
 
@@ -292,6 +287,73 @@ describe('settings Test Suite', function () {
             });
             expect(vpSettings.viewCategory()).toBe('huge');
             expect(vpSettings.viewPortSize()).toBe(1201);
+        });
+
+    });
+
+    describe('SlotSettings Tests', function () {
+
+        // Common setup for "Targeting" tests
+        function targetingTestSetup(targetingParams) {
+            return {
+                gptDivId: "dfp-ad-lazyload",
+                adUnitPath: "/62650033/desktop-uk",
+                targeting: targetingParams,
+                lazyload: true,
+                defineOnDisplay: true, // Makes GPT slot not get defined, which changes the way targeting is fetched
+                viewPortSizes: {
+                    medium: [ [300, 250] ]
+                }
+            };
+        }
+
+        it('targeting: no targeting', function () {
+            var slotConfig1 = targetingTestSetup(undefined),
+                slotSettings1 = new settings.SlotSettings(slotConfig1);
+            expect(slotSettings1.targeting()).toEqual(undefined);
+            var slotConfig2 = targetingTestSetup({}),
+                slotSettings2 = new settings.SlotSettings(slotConfig2);
+            expect(slotSettings2.targeting()).toEqual({});
+        });
+
+        it('setTargeting: value as a boolean', function () {
+            var slotConfig = targetingTestSetup({"key": true});
+            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+        });
+
+        it('targeting: value as a number', function () {
+            var slotConfig = targetingTestSetup({"key": 777});
+            expect(function () { new settings.createSlotSettings(slotConfig); }).not.toThrow();
+        });
+
+        it('targeting: value as an object', function () {
+            var slotConfig = targetingTestSetup({"key": {"value": true}});
+            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+        });
+
+        it('targeting: value as an array of strings, numbers', function () {
+            var slotConfig = targetingTestSetup({"key": ["value", 777]});
+            expect(function () { new settings.createSlotSettings(slotConfig); }).not.toThrow();
+        });
+
+        it('targeting: value as an array of strings, objects', function () {
+            var slotConfig = targetingTestSetup({"key": ["value", {"valuethesecond": true}]});
+            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+        });
+
+        it('targeting: value as an array of arrays', function () {
+            var slotConfig = targetingTestSetup({"key": ["value", ["second"]]});
+            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+        });
+
+        it('targeting: value as a string', function () {
+            var slotConfig = targetingTestSetup({"key": "value"});
+            expect(function () { new settings.createSlotSettings(slotConfig); }).not.toThrow();
+        });
+
+        it('targeting: value as an array of strings', function () {
+            var slotConfig = targetingTestSetup({"key": ["value", "second"]});
+            expect(function () { new settings.createSlotSettings(slotConfig); }).not.toThrow();
         });
 
     });

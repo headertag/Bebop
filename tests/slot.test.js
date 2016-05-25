@@ -278,6 +278,16 @@ describe('Slot Test Suite', function () {
             });
         });
 
+        it('setTargeting: value as a boolean', function () {
+            var slot = targetingTestSetup({
+                "pos": "right3"
+            });
+            expect(function () {slot.setTargeting("key", true);}).toThrow();
+            expect(slot.getTargeting()).toEqual({
+                "pos": "right3"
+            });
+        });
+
         it('setTargeting: value as a number', function () {
             var slot = targetingTestSetup({
                 "pos": "right3"
