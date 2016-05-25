@@ -373,13 +373,15 @@ describe('settings Test Suite', function () {
         }
 
         it('gptDivID: undefined', function () {
-            var slotConfig = gptDivIdTestSetup(undefined);
-            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+            var slotConfig = gptDivIdTestSetup(undefined),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(function () { slotSettings.gptDivId() }).toThrow();
         });
 
         it('gptDivID: empty', function () {
-            var slotConfig = gptDivIdTestSetup('');
-            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+            var slotConfig = gptDivIdTestSetup(''),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(function () { slotSettings.gptDivId() }).toThrow();
         });
 
         it('gptDivID: non-empty', function () {
@@ -389,8 +391,9 @@ describe('settings Test Suite', function () {
         });
 
         it('adUnitPath: undefined', function () {
-            var slotConfig = adUnitPathTestSetup(undefined);
-            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+            var slotConfig = adUnitPathTestSetup(undefined),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(function () { slotSettings.gptDivId() }).toThrow();
         });
 
         it('adUnitPath: empty', function () {
@@ -418,43 +421,51 @@ describe('settings Test Suite', function () {
         });
 
         it('setTargeting: value as a boolean', function () {
-            var slotConfig = targetingTestSetup({"key": true});
-            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+            var slotConfig = targetingTestSetup({"key": true}),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(function () { slotSettings.targeting() }).toThrow();
         });
 
         it('targeting: value as a number', function () {
-            var slotConfig = targetingTestSetup({"key": 777});
-            expect(function () { new settings.createSlotSettings(slotConfig); }).not.toThrow();
+            var slotConfig = targetingTestSetup({"key": 777}),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.targeting()).toEqual({"key": 777});
         });
 
         it('targeting: value as an object', function () {
-            var slotConfig = targetingTestSetup({"key": {"value": true}});
-            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+            var slotConfig = targetingTestSetup({"key": {"value": true}}),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(function () { slotSettings.targeting() }).toThrow();
         });
 
         it('targeting: value as an array of strings, numbers', function () {
-            var slotConfig = targetingTestSetup({"key": ["value", 777]});
-            expect(function () { new settings.createSlotSettings(slotConfig); }).not.toThrow();
+            var slotConfig = targetingTestSetup({"key": ["value", 777]}),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.targeting()).toEqual({"key": ["value", 777]});
         });
 
         it('targeting: value as an array of strings, objects', function () {
-            var slotConfig = targetingTestSetup({"key": ["value", {"valuethesecond": true}]});
-            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+            var slotConfig = targetingTestSetup({"key": ["value", {"valuethesecond": true}]}),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(function () { slotSettings.targeting() }).toThrow();
         });
 
         it('targeting: value as an array of arrays', function () {
-            var slotConfig = targetingTestSetup({"key": ["value", ["second"]]});
-            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+            var slotConfig = targetingTestSetup({"key": ["value", ["second"]]}),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(function () { slotSettings.targeting() }).toThrow();
         });
 
         it('targeting: value as a string', function () {
-            var slotConfig = targetingTestSetup({"key": "value"});
-            expect(function () { new settings.createSlotSettings(slotConfig); }).not.toThrow();
+            var slotConfig = targetingTestSetup({"key": "value"}),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.targeting()).toEqual({"key": "value"});
         });
 
         it('targeting: value as an array of strings', function () {
-            var slotConfig = targetingTestSetup({"key": ["value", "second"]});
-            expect(function () { new settings.createSlotSettings(slotConfig); }).not.toThrow();
+            var slotConfig = targetingTestSetup({"key": ["value", "second"]}),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(slotSettings.targeting()).toEqual({"key": ["value", "second"]});
         });
 
         it('lazyload: undefined', function () {
@@ -494,23 +505,27 @@ describe('settings Test Suite', function () {
         });
 
         it('viewPortSizes (interstitial): undefined', function () {
-            var slotConfig = viewPortSizesTestSetup(true, undefined);
-            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+            var slotConfig = viewPortSizesTestSetup(true, undefined),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(function () { slotSettings.sizeCatagories() }).toThrow();
         });
 
         it('viewPortSizes (interstitial): empty array', function () {
-            var slotConfig = viewPortSizesTestSetup(true, []);
-            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+            var slotConfig = viewPortSizesTestSetup(true, []),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(function () { slotSettings.sizeCatagories() }).toThrow();
         });
 
         it('viewPortSizes (interstitial): one incorrect size', function () {
-            var slotConfig = viewPortSizesTestSetup(true, ['gigantic']);
-            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+            var slotConfig = viewPortSizesTestSetup(true, ['gigantic']),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(function () { slotSettings.sizeCatagories() }).toThrow();
         });
 
         it('viewPortSizes (interstitial): many incorrect sizes', function () {
-            var slotConfig = viewPortSizesTestSetup(true, ['teensy', 'gigantic']);
-            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+            var slotConfig = viewPortSizesTestSetup(true, ['teensy', 'gigantic']),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(function () { slotSettings.sizeCatagories() }).toThrow();
         });
 
         it('viewPortSizes (interstitial): one valid size', function () {
@@ -532,26 +547,42 @@ describe('settings Test Suite', function () {
         });
 
         it('viewPortSizes (non-interstitial): undefined', function () {
-            var slotConfig = viewPortSizesTestSetup(false, undefined);
-            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+            var slotConfig = viewPortSizesTestSetup(false, undefined),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(function () { slotSettings.viewPortSizes(undefined) }).toThrow();
         });
 
         it('viewPortSizes (non-interstitial): empty array', function () {
-            var slotConfig = viewPortSizesTestSetup(false, []);
-            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+            var slotConfig = viewPortSizesTestSetup(false, []),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(function () { slotSettings.viewPortSizes(undefined) }).toThrow();
         });
 
         it('viewPortSizes (non-interstitial): one incorrect size', function () {
-            var slotConfig = viewPortSizesTestSetup(false, { gigantic: [ [300, 1050] ] });
-            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+            var slotConfig = viewPortSizesTestSetup(false, { gigantic: [ [300, 1050] ] }),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(function () { slotSettings.viewPortSizes('gigantic') }).toThrow();
         });
 
         it('viewPortSizes (non-interstitial): many incorrect sizes', function () {
             var slotConfig = viewPortSizesTestSetup(false, {
                 teensy: [ [300, 50] ],
                 gigantic: [ [300, 1050] ]
-            });
-            expect(function () { new settings.createSlotSettings(slotConfig); }).toThrow();
+            }),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(function () { slotSettings.viewPortSizes('gigantic') }).toThrow();
+        });
+
+        it('viewPortSizes (non-interstitial): one valid size, invalid width', function () {
+            var slotConfig = viewPortSizesTestSetup(false, { medium: [ ['string', 250] ] }),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(function () { slotSettings.viewPortSizes('mediun') }).toThrow();
+        });
+
+        it('viewPortSizes (non-interstitial): one valid size, invalid height', function () {
+            var slotConfig = viewPortSizesTestSetup(false, { medium: [ [300, undefined] ] }),
+                slotSettings = new settings.SlotSettings(slotConfig);
+            expect(function () { slotSettings.viewPortSizes('mediun') }).toThrow();
         });
 
         it('viewPortSizes (non-interstitial): one valid size', function () {
