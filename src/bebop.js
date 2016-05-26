@@ -92,7 +92,7 @@ Bebop.prototype.defineSlot = function (slotConfig) {
 Bebop.prototype.refresh = function (slots, options) {
 
     validation.enforceType(slots, ['array', 'null', 'undefined']);
-    validation.enforceType(slots, ['object', 'undefined']);
+    validation.enforceType(options, ['object', 'undefined']);
 
     // handles the case where only options is passed
     if (type.isObj(slots) && type.isUndef(options)) {
