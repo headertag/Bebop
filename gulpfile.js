@@ -100,7 +100,7 @@ gulp.task('lint', function () {
 
 gulp.task('compat', ['prod-build'], function () {
     return gulp.src(buildConfig.buildDir + buildConfig.buildName + '.js')
-        .pipe(compat(gulp.dest, buildConfig.compatConfig));
+        .pipe(compat(buildConfig.compatConfig));
 });
 
 // Test Tasks
