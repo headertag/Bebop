@@ -31,11 +31,7 @@ module.exports.uglifyOptions = {
 };
 
 module.exports.compatConfig = {
-    'ignore_unlisted':  true,
-    'ios_saf': {
-        fail:           '4.15',
-        report:         '4.15'
-    }
+    'ignore_unlisted':  false
 };
 
 module.exports.jshint = {

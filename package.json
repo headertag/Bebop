@@ -30,7 +30,7 @@
     "yargs": "^4.7.1"
   },
   "dependencies": {
-    "gulp-browser-compat": "git+ssh://git@gitlab.internal.casalemedia.com:michael.robb/gulp-browser-compat.git"
+    "gulp-browser-compat": "git+ssh://git@gitlab.internal.casalemedia.com:mozes.magyar/gulp-browser-compat.git"
   },
   "repository": {
     "type": "git",
