@@ -25,7 +25,6 @@ var pkgInfo     = {
     pkg: require('./package.json')
 };
 
-
 // Web Server
 var webserver   = require('gulp-webserver');
 
@@ -36,14 +35,16 @@ var argv        = require('yargs').argv;
 var jshint      = require('gulp-jshint');
 var jscs        = require('gulp-jscs');
 var reporter    = require('jshint-stylish').reporter;
-var compat      = require('gulp-browser-compat');
+
+// REMOVED UNTIL OPEN SOURCED
+//git+ssh://git@gitlab.internal.casalemedia.com:mozes.magyar/gulp-browser-compat.git
+//var compat      = require('gulp-browser-compat');
 
 // Test Dependencies
 var Jasmine     = require('jasmine');
 
 // Build Helpers
 function build(options) {
-
     return browserify(options.browserify)
         .bundle()
         .pipe(source(buildConfig.buildName + '.js'))
@@ -99,6 +100,8 @@ gulp.task('lint', function () {
 });
 
 gulp.task('compat', ['prod-build'], function () {
+    console.log('Removed the command until this library is open sourced');
+    return;
     return gulp.src(buildConfig.buildDir + buildConfig.buildName + '.js')
         .pipe(compat(buildConfig.compatConfig));
 });
