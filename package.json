@@ -29,12 +29,9 @@
     "vinyl-source-stream": "^1.1.0",
     "yargs": "^4.7.1"
   },
-  "dependencies": {
-    "gulp-browser-compat": "git+ssh://git@gitlab.internal.casalemedia.com:mozes.magyar/gulp-browser-compat.git"
-  },
   "repository": {
     "type": "git",
-    "url": "http://gitlab.internal.casalemedia.com/michael.robb/bebop",
-    "issues": "http://gitlab.internal.casalemedia.com/michael.robb/bebop/issues"
+    "url": "http://gitlab.internal.casalemedia.com/headertag/bebop",
+    "issues": "http://gitlab.internal.casalemedia.com/headertag/bebop/issues"
   }
 }
